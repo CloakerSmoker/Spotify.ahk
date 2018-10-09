@@ -156,11 +156,7 @@ class Player {
 	}
 	SetShuffle(mode) {
 		return this.ParentObject.Util.CustomCall("PUT", "https://api.spotify.com/v1/me/player/shuffle?state=" . (mode ? "true" : "false")
-	}
-	
+	}	
 }
-spoofy := new Spotify
-spoofy.Player.SetRepeatMode(3)
-
 #Include AHKsock.ahk
 #Include AHKhttp.ahk
