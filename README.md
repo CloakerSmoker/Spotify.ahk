@@ -6,6 +6,7 @@ Uses a slightly modified version of the AHKhttp library by zhamlin (https://gith
 
 Usage - 
 Create a new Spotify object, and call `%SpotifyObjectName%.Util.IsReady()` to check if user authorization is complete.
+Also, a loop can be used to hold execution until Spotify.ahk has completed user authorization.
 ```
 loop {
   Sleep, -1
