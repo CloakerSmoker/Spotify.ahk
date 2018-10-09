@@ -3,6 +3,7 @@ class Spotify {
 	__New() {
 		this.Util := new Util(this)
 		this.Player := new Player(this)
+		this.Library := new Library(this)
 	}
 }
 class Util {
@@ -93,6 +94,7 @@ class Util {
 		}
 	}
 	CustomCall(method, url, HeaderArray := "") {
+		this.CheckTimeout()
 		if !(HeaderArray) {
 			HeaderArray :=  {1:{1:"Authorization", 2:"Bearer " . this.token}}
 		}
@@ -157,6 +159,35 @@ class Player {
 	SetShuffle(mode) {
 		return this.ParentObject.Util.CustomCall("PUT", "https://api.spotify.com/v1/me/player/shuffle?state=" . (mode ? "true" : "false")
 	}	
+}
+class Library {
+	__New(ParentObject) {
+		this.ParentObject := ParentObject
+	}
+	CheckSavedForAlbum(AlbumID) {
+		return this.ParentObject.Util.CustomCall("GET", "https://api.spotify.com/v1/me/albums/contains?ids=" . AlbumID)
+	}
+	CheckSavedForTrack(TrackID) {
+		return this.ParentObject.Util.CustomCall("GET", "https://api.spotify.com/v1/me/tracks/contains?ids=" . TrackID)
+	}
+	GetSavedAlbums(NumberOfAlbums, offset) {
+		return this.ParentObject.Util.CustomCall("GET", "https://api.spotify.com/v1/me/albums?limit=" . NumberOfAlbums . "&offset=" . offset)
+	}
+	GetSavedTracks(NumberOfTracks, offset) {
+		return this.ParentObject.Util.CustomCall("GET", "https://api.spotify.com/v1/me/tracks?limit=" . NumberOfTracks . "&offset=" . offset)
+	}
+	RemoveSavedAlbum(IDList) {
+		return this.ParentObject.Util.CustomCall("DELETE", "ttps://api.spotify.com/v1/me/albums?ids=" . IDList)
+	}
+	RemoveSavedTrack(IDList) {
+		return this.ParentObject.Util.CustomCall("DELETE", "https://api.spotify.com/v1/me/tracks?ids=" . IDList)
+	}
+	SaveNewAlbum(AlbumID) {
+		return this.ParentObject.Util.CustomCall("PUT", "https://api.spotify.com/v1/me/albums?ids=" . AlbumID)
+	}
+	SaveNewAlbum(TrackID) {
+		return this.ParentObject.Util.CustomCall("PUT", "https://api.spotify.com/v1/me/tracks?ids=" . TrackID)
+	}
 }
 #Include AHKsock.ahk
 #Include AHKhttp.ahk
