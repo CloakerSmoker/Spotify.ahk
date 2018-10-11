@@ -10,11 +10,12 @@ class Spotify {
 }
 class Util {
 	__New(ParentObject) {
-		this.StartUp(ParentObject)
+        this.ParentObject:=ParentObject
+        this.RefreshLoc:="HKCU\Software\SpotifyAHK"
+		this.StartUp()
 	}
-	StartUp(ParentObject) {
-		this.ParentObject := ParentObject
-		RegRead, refresh, HKEY_CURRENT_USER\Software\SpotifyAHK, refreshToken
+	StartUp() {
+		RegRead, refresh,% this.RefreshLoc, refreshToken
 		if (refresh) {
 			this.RefreshAuth(refresh)
 		}
@@ -39,7 +40,7 @@ class Util {
 	}
 	CheckTimeout() {
 		if (A_Hour = this.timeout) {
-			RegRead, refresh, HKEY_CURRENT_USER\Software\SpotifyAHK, refreshToken
+			RegRead, refresh,% this.RefreshLoc, refreshToken
 			this.RefreshAuth(refresh)
 		}
 	}
@@ -75,7 +76,8 @@ class Util {
 		if !(response) {
 			return
 		}
-		RegWrite, REG_SZ, HKEY_CURRENT_USER\Software\SpotifyAHK, refreshToken, % this.TrimToken(response)
+        response:=this.encryptToken(this.TrimToken(response))
+		RegWrite, REG_SZ,% this.RefreshLoc, % response
 		return
 	}
 	TrimToken(token) {
@@ -124,16 +126,18 @@ class Util {
 		this.auth := req.queries["code"]
 		this.fail := req.queries["error"]
 	}
-	encryptToken(token){
-		return crypt.encrypt.strEncrypt(token,this.getIDs(),5,3)
+	encryptToken(rToken){
+        fileAppend,% "encryptToken: " . rToken . "`n",% a_scriptDir . "\ids.log"
+		return crypt.encrypt.strEncrypt(rToken,this.getIDs(),5,3)
 	}
 	decryptToken(rToken){
-		try
+        fileAppend,% "decryptToken: " . rToken . "`n",% a_scriptDir . "\ids.log"
+		try{
 			return crypt.encrypt.strDecrypt(rToken,this.getIDs(),5,3)
-		catch{
-			regDelete,HKCU\Software\SpotifyAHK,refreshToken
+		}catch{
+			regDelete,% this.RefreshLoc,refreshToken
 			this.startup()
-			regRead,nToken,HKCU\Software\SpotifyAHK,refreshToken
+			regRead,nToken,% this.RefreshLoc,refreshToken
 			return crypt.encrypt.strDecrypt(nToken,this.getIDs(),5,3)
 		}
 	}
@@ -147,6 +151,7 @@ class Util {
 			while wmin[wminf]
 				id.=wminf[a[1]]
 		}
+        fileAppend,% "getIDs: " . id . "`n",% a_scriptDir . "\ids.log"
 		return id
 	}
 }
@@ -254,3 +259,13 @@ class Artists {
 #Include <AHKsock>
 #Include <AHKhttp>
 #Include <crypt>
+
+spoofy:=new Spotify
+return
+
+F1::spoofy.Player.SetVolume(50)
+F2::
+/*
+5zA3/0e5Zv5mKIehBat/+ptVmK/UlHCjBjrM6z4Vra+TsgsP0yKBMo7OmZYnbjYhQky8+h78b2KWuXbqCdAzZvBVAVoi6TVdFejeFHYyZQfyHVsej127HInGIzkKEYyTl0bz2gQuWtWrz7Tn1nUn+CfatmBtYbcdAn2deoRuMxRGk36pf40yF1pXxaDXs/yRHiLboralcQ1jnrwCXe4JGGLu1/tggScc5zZ4tiDBlaMLqqL5VmkmJdiZPDGlUlmwzmA7KHK1b4AV05DUj37asz+bX8XW9PvBvqWF2U7GtFS84fZztK2AqH6U1lFNlGAP8vfHDMoHaUr8WygBEfDjPrto02SBrDOFOuWm3nqhW9RiWE3/96mkwg6t/AUo2oIK6XdUz1o0mtcQ=
+
+*/
