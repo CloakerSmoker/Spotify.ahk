@@ -219,7 +219,7 @@ class Library {
 	SaveNewAlbum(AlbumID) {
 		return this.ParentObject.Util.CustomCall("PUT", "me/albums?ids=" . AlbumID)
 	}
-	SaveNewAlbum(TrackID) {
+	SaveNewTrack(TrackID) {
 		return this.ParentObject.Util.CustomCall("PUT", "me/tracks?ids=" . TrackID)
 	}
 }
