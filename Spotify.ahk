@@ -10,11 +10,12 @@ class Spotify {
 }
 class Util {
 	__New(ParentObject) {
-		this.StartUp(ParentObject)
+        this.ParentObject:=ParentObject
+        this.RefreshLoc:="HKCU\Software\SpotifyAHK"
+		this.StartUp()
 	}
-	StartUp(ParentObject) {
-		this.ParentObject := ParentObject
-		RegRead, refresh, HKEY_CURRENT_USER\Software\SpotifyAHK, refreshToken
+	StartUp() {
+		RegRead, refresh,% this.RefreshLoc, refreshToken
 		if (refresh) {
 			this.RefreshAuth(refresh)
 		}
@@ -39,11 +40,12 @@ class Util {
 	}
 	CheckTimeout() {
 		if (A_Hour = this.timeout) {
-			RegRead, refresh, HKEY_CURRENT_USER\Software\SpotifyAHK, refreshToken
+			RegRead, refresh,% this.RefreshLoc, refreshToken
 			this.RefreshAuth(refresh)
 		}
 	}
 	RefreshAuth(refresh) {
+		refresh:=this.decryptToken(refresh)
 		arg := {1:{1:"Content-Type", 2:"application/x-www-form-urlencoded"}, 2:{1:"Authorization", 2:"Basic OWZlMjYyOTZiYjdiNDMzMGFjNTkzMzllZmQyNzQyYjA6ZWNhNjU2ZDFkNTczNDNhOTllMWJjNWVmODQ0YmY2NGM="}}
 		response := this.CustomCall("POST", "https://accounts.spotify.com/api/token?grant_type=refresh_token&refresh_token=" . refresh, arg)
 		this.authState := true
@@ -74,7 +76,8 @@ class Util {
 		if !(response) {
 			return
 		}
-		RegWrite, REG_SZ, HKEY_CURRENT_USER\Software\SpotifyAHK, refreshToken, % this.TrimToken(response)
+        response:=this.encryptToken(this.TrimToken(response))
+		RegWrite, REG_SZ,% this.RefreshLoc,RefreshToken,% response
 		return
 	}
 	TrimToken(token) {
@@ -122,6 +125,31 @@ class Util {
 		res.status := 200
 		this.auth := req.queries["code"]
 		this.fail := req.queries["error"]
+	}
+	encryptToken(rToken){
+		return crypt.encrypt.strEncrypt(rToken,this.getIDs(),5,3)
+	}
+	decryptToken(rToken){
+		try{
+			return crypt.encrypt.strDecrypt(rToken,this.getIDs(),5,3)
+		}catch{
+			regDelete,% this.RefreshLoc,refreshToken
+			this.startup()
+			regRead,nToken,% this.RefreshLoc,refreshToken
+			return crypt.encrypt.strDecrypt(nToken,this.getIDs(),5,3)
+		}
+	}
+	getIDs(){
+		static infos:=[["ProcessorID","Win32_Service"],["SKU","Win32_BaseBoard"],["DeviceID","Win32_USBController"]]
+		wmi:=comObjGet("winmgmts:")
+		id:=
+		
+		for i,a in infos {
+			wmin:=wmi.execQuery("Select " . a[1] . " from " . a[2])._newEnum
+			while wmin[wminf]
+				id.=wminf[a[1]]
+		}
+		return id
 	}
 }
 class Player {
@@ -193,7 +221,7 @@ class Library {
 	SaveNewAlbum(AlbumID) {
 		return this.ParentObject.Util.CustomCall("PUT", "me/albums?ids=" . AlbumID)
 	}
-	SaveNewAlbum(TrackID) {
+	SaveNewTrack(TrackID) {
 		return this.ParentObject.Util.CustomCall("PUT", "me/tracks?ids=" . TrackID)
 	}
 }
@@ -227,3 +255,4 @@ class Artists {
 }
 #Include <AHKsock>
 #Include <AHKhttp>
+#Include <crypt>
