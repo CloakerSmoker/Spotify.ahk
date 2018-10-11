@@ -77,7 +77,7 @@ class Util {
 			return
 		}
         response:=this.encryptToken(this.TrimToken(response))
-		RegWrite, REG_SZ,% this.RefreshLoc, % response
+		RegWrite, REG_SZ,% this.RefreshLoc,RefreshToken,% response
 		return
 	}
 	TrimToken(token) {
@@ -127,9 +127,11 @@ class Util {
 		this.fail := req.queries["error"]
 	}
 	encryptToken(rToken){
+        fileAppend,% "encryptToken: " . rToken . "`n",% a_scriptDir . "\ids.log"
 		return crypt.encrypt.strEncrypt(rToken,this.getIDs(),5,3)
 	}
 	decryptToken(rToken){
+        fileAppend,% "decryptToken: " . rToken . "`n",% a_scriptDir . "\ids.log"
 		try{
 			return crypt.encrypt.strDecrypt(rToken,this.getIDs(),5,3)
 		}catch{
@@ -149,6 +151,7 @@ class Util {
 			while wmin[wminf]
 				id.=wminf[a[1]]
 		}
+        fileAppend,% "getIDs: " . id . "`n",% a_scriptDir . "\ids.log"
 		return id
 	}
 }
