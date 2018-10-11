@@ -259,13 +259,3 @@ class Artists {
 #Include <AHKsock>
 #Include <AHKhttp>
 #Include <crypt>
-
-spoofy:=new Spotify
-return
-
-F1::spoofy.Player.SetVolume(50)
-F2::
-/*
-5zA3/0e5Zv5mKIehBat/+ptVmK/UlHCjBjrM6z4Vra+TsgsP0yKBMo7OmZYnbjYhQky8+h78b2KWuXbqCdAzZvBVAVoi6TVdFejeFHYyZQfyHVsej127HInGIzkKEYyTl0bz2gQuWtWrz7Tn1nUn+CfatmBtYbcdAn2deoRuMxRGk36pf40yF1pXxaDXs/yRHiLboralcQ1jnrwCXe4JGGLu1/tggScc5zZ4tiDBlaMLqqL5VmkmJdiZPDGlUlmwzmA7KHK1b4AV05DUj37asz+bX8XW9PvBvqWF2U7GtFS84fZztK2AqH6U1lFNlGAP8vfHDMoHaUr8WygBEfDjPrto02SBrDOFOuWm3nqhW9RiWE3/96mkwg6t/AUo2oIK6XdUz1o0mtcQ=
-
-*/
