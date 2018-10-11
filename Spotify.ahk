@@ -4,6 +4,8 @@ class Spotify {
 		this.Util := new Util(this)
 		this.Player := new Player(this)
 		this.Library := new Library(this)
+		this.Albums := new Albums(this)
+		this.Artists := new Artists(this)
 	}
 }
 class Util {
@@ -95,6 +97,9 @@ class Util {
 	}
 	CustomCall(method, url, HeaderArray := "") {
 		this.CheckTimeout()
+		if !((InStr(url, "https://api.spotify.com")) || (InStr(url, "https://accounts.spotify.com/api/"))) {
+			url := "https://api.spotify.com/v1/" . url
+		}
 		if !(HeaderArray) {
 			HeaderArray :=  {1:{1:"Authorization", 2:"Bearer " . this.token}}
 		}
@@ -121,43 +126,43 @@ class Player {
 		this.ParentObject := ParentObject
 	}
 	SetVolume(volume) {
-		return this.ParentObject.Util.CustomCall("PUT", "https://api.spotify.com/v1/me/player/volume?volume_percent=" . volume)
+		return this.ParentObject.Util.CustomCall("PUT", "me/player/volume?volume_percent=" . volume)
 	}
 	GetDeviceList() {
-		return this.ParentObject.Util.CustomCall("GET", "https://api.spotify.com/v1/me/player/devices")
+		return this.ParentObject.Util.CustomCall("GET", "me/player/devices")
 	}
 	GetCurrentPlaybackInfo() {
-		return this.ParentObject.Util.CustomCall("GET", "https://api.spotify.com/v1/me/player")
+		return this.ParentObject.Util.CustomCall("GET", "me/player")
 	}
 	GetRecentlyPlayed() {
-		return this.ParentObject.Util.CustomCall("GET", "https://api.spotify.com/v1/me/player/recently-played")
+		return this.ParentObject.Util.CustomCall("GET", "me/player/recently-played")
 	}
 	PausePlayback() {
-		return this.ParentObject.Util.CustomCall("POST", "https://api.spotify.com/v1/me/player/pause")
+		return this.ParentObject.Util.CustomCall("POST", "me/player/pause")
 	}
 	SeekTime(TimeInMS) {
-		return this.ParentObject.Util.CustomCall("PUT", "https://api.spotify.com/v1/me/player/seek?position_ms=" . TimeInMS)
+		return this.ParentObject.Util.CustomCall("PUT", "me/player/seek?position_ms=" . TimeInMS)
 	}
 	SetRepeatMode(mode) {
-		return this.ParentObject.Util.CustomCall("PUT", "https://api.spotify.com/v1/me/player/repeat?state=" . (mode = 1 ? "track" : (mode = 2 ? "context" : "off")))
+		return this.ParentObject.Util.CustomCall("PUT", "me/player/repeat?state=" . (mode = 1 ? "track" : (mode = 2 ? "context" : "off")))
 	}
 	NextTrack() {
-		return this.ParentObject.Util.CustomCall("POST", "https://api.spotify.com/v1/me/player/next")
+		return this.ParentObject.Util.CustomCall("POST", "me/player/next")
 	}
 	LastTrack() {
-		return this.ParentObject.Util.CustomCall("POST", "https://api.spotify.com/v1/me/player/previous")
+		return this.ParentObject.Util.CustomCall("POST", "me/player/previous")
 	}
 	ChangeContext(ContextURI) {
-		return this.ParentObject.Util.CustomCall("PUT", "https://api.spotify.com/v1/me/player/play?{""context_uri"": """ . ContextURI . """}")
+		return this.ParentObject.Util.CustomCall("PUT", "me/player/play?{""context_uri"": """ . ContextURI . """}")
 	}
 	SetContextToTrackArray(TrackArray) {
-		return this.ParentObject.Util.CustomCall("PUT", "https://api.spotify.com/v1/me/player/play?{""uris"": [" . TrackArray . "]}")
+		return this.ParentObject.Util.CustomCall("PUT", "me/player/play?{""uris"": [" . TrackArray . "]}")
 	}
 	ResumePlayback() {
-		return this.ParentObject.Util.CustomCall("PUT", "https://api.spotify.com/v1/me/player/play")
+		return this.ParentObject.Util.CustomCall("PUT", "me/player/play")
 	}
 	SetShuffle(mode) {
-		return this.ParentObject.Util.CustomCall("PUT", "https://api.spotify.com/v1/me/player/shuffle?state=" . (mode ? "true" : "false")
+		return this.ParentObject.Util.CustomCall("PUT", "me/player/shuffle?state=" . (mode ? "true" : "false"))
 	}	
 }
 class Library {
@@ -165,28 +170,56 @@ class Library {
 		this.ParentObject := ParentObject
 	}
 	CheckSavedForAlbum(AlbumID) {
-		return this.ParentObject.Util.CustomCall("GET", "https://api.spotify.com/v1/me/albums/contains?ids=" . AlbumID)
+		return this.ParentObject.Util.CustomCall("GET", "me/albums/contains?ids=" . AlbumID)
 	}
 	CheckSavedForTrack(TrackID) {
-		return this.ParentObject.Util.CustomCall("GET", "https://api.spotify.com/v1/me/tracks/contains?ids=" . TrackID)
+		return this.ParentObject.Util.CustomCall("GET", "me/tracks/contains?ids=" . TrackID)
 	}
 	GetSavedAlbums(NumberOfAlbums, offset) {
-		return this.ParentObject.Util.CustomCall("GET", "https://api.spotify.com/v1/me/albums?limit=" . NumberOfAlbums . "&offset=" . offset)
+		return this.ParentObject.Util.CustomCall("GET", "me/albums?limit=" . NumberOfAlbums . "&offset=" . offset)
 	}
 	GetSavedTracks(NumberOfTracks, offset) {
-		return this.ParentObject.Util.CustomCall("GET", "https://api.spotify.com/v1/me/tracks?limit=" . NumberOfTracks . "&offset=" . offset)
+		return this.ParentObject.Util.CustomCall("GET", "me/tracks?limit=" . NumberOfTracks . "&offset=" . offset)
 	}
 	RemoveSavedAlbum(IDList) {
-		return this.ParentObject.Util.CustomCall("DELETE", "ttps://api.spotify.com/v1/me/albums?ids=" . IDList)
+		return this.ParentObject.Util.CustomCall("DELETE", "me/albums?ids=" . IDList)
 	}
 	RemoveSavedTrack(IDList) {
-		return this.ParentObject.Util.CustomCall("DELETE", "https://api.spotify.com/v1/me/tracks?ids=" . IDList)
+		return this.ParentObject.Util.CustomCall("DELETE", "me/tracks?ids=" . IDList)
 	}
 	SaveNewAlbum(AlbumID) {
-		return this.ParentObject.Util.CustomCall("PUT", "https://api.spotify.com/v1/me/albums?ids=" . AlbumID)
+		return this.ParentObject.Util.CustomCall("PUT", "me/albums?ids=" . AlbumID)
 	}
 	SaveNewAlbum(TrackID) {
-		return this.ParentObject.Util.CustomCall("PUT", "https://api.spotify.com/v1/me/tracks?ids=" . TrackID)
+		return this.ParentObject.Util.CustomCall("PUT", "me/tracks?ids=" . TrackID)
+	}
+}
+class Albums {
+	__New(ParentObject) {
+		this.ParentObject := ParentObject
+	}
+	GetAlbum(AlbumID) {
+		return this.ParentObject.Util.CustomCall("GET", "albums/" . AlbumID)
+	}
+	GetTracksFromAlbum(AlbumID) {
+		return this.ParentObject.Util.CustomCall("GET", "albums/" . AlbumID . "/tracks")
+	}
+}
+class Artists {
+	__New(ParentObject) {
+		this.ParentObject := ParentObject
+	}
+	GetArtist(ArtistID) {
+		return this.ParentObject.Util.CustomCall("GET", "artists/" . ArtistID)
+	}
+	GetArtistAlbums(ArtistID) {
+		return this.ParentObject.Util.CustomCall("GET", "artists/" . ArtistID . "/albums")
+	}
+	GetRelatedArtists(ArtistID) {
+		return this.ParentObject.Util.CustomCall("GET", "artists/" . ArtistID . "/related-artists")
+	}
+	GetArtistTopTracks(ArtistID) {
+		return this.ParentObject.Util.CustomCall("GET", "artists/" . ArtistID . "/top-tracks")
 	}
 }
 #Include AHKsock.ahk
