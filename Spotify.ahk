@@ -10,6 +10,9 @@ class Spotify {
 }
 class Util {
 	__New(ParentObject) {
+		this.StartUp(ParentObject)
+	}
+	StartUp(ParentObject) {
 		this.ParentObject := ParentObject
 		RegRead, refresh, HKEY_CURRENT_USER\Software\SpotifyAHK, refreshToken
 		if (refresh) {
