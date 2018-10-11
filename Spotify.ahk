@@ -44,6 +44,7 @@ class Util {
 		}
 	}
 	RefreshAuth(refresh) {
+		refresh:=this.decryptToken(refresh)
 		arg := {1:{1:"Content-Type", 2:"application/x-www-form-urlencoded"}, 2:{1:"Authorization", 2:"Basic OWZlMjYyOTZiYjdiNDMzMGFjNTkzMzllZmQyNzQyYjA6ZWNhNjU2ZDFkNTczNDNhOTllMWJjNWVmODQ0YmY2NGM="}}
 		response := this.CustomCall("POST", "https://accounts.spotify.com/api/token?grant_type=refresh_token&refresh_token=" . refresh, arg)
 		this.authState := true
@@ -122,6 +123,31 @@ class Util {
 		res.status := 200
 		this.auth := req.queries["code"]
 		this.fail := req.queries["error"]
+	}
+	encryptToken(token){
+		return crypt.encrypt.strEncrypt(token,this.getIDs(),5,3)
+	}
+	decryptToken(rToken){
+		try
+			return crypt.encrypt.strDecrypt(rToken,this.getIDs(),5,3)
+		catch{
+			regDelete,HKCU\Software\SpotifyAHK,refreshToken
+			this.startup()
+			regRead,nToken,HKCU\Software\SpotifyAHK,refreshToken
+			return crypt.encrypt.strDecrypt(nToken,this.getIDs(),5,3)
+		}
+	}
+	getIDs(){
+		static infos:=[["ProcessorID","Win32_Service"],["SKU","Win32_BaseBoard"],["DeviceID","Win32_USBController"]]
+		wmi:=comObjGet("winmgmts:")
+		id:=
+		
+		for i,a in infos {
+			wmin:=wmi.execQuery("Select " . a[1] . " from " . a[2])._newEnum
+			while wmin[wminf]
+				id.=wminf[a[1]]
+		}
+		return id
 	}
 }
 class Player {
@@ -227,3 +253,4 @@ class Artists {
 }
 #Include <AHKsock>
 #Include <AHKhttp>
+#Include <crypt>
