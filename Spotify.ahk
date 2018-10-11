@@ -222,5 +222,5 @@ class Artists {
 		return this.ParentObject.Util.CustomCall("GET", "artists/" . ArtistID . "/top-tracks")
 	}
 }
-#Include AHKsock.ahk
-#Include AHKhttp.ahk
+#Include <AHKsock>
+#Include <AHKhttp>
