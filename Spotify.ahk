@@ -1,4 +1,4 @@
-﻿#MaxThreads 2
+#MaxThreads 2
 class Spotify {
 	__New() {
 		this.Util := new Util(this)
@@ -6,6 +6,30 @@ class Spotify {
 		this.Library := new Library(this)
 		this.Albums := new Albums(this)
 		this.Artists := new Artists(this)
+	}
+	class SimpleArtistObject {
+		__New(response) {
+			RegexMatch(response, "https:\/\/o.*?""", ExternalURL)
+			this.ExternalURL := SubStr(ExternalURL, 1, (StrLen(ExternalURL) - 1))
+			RegexMatch(response, "me"" : "".*?"",\n", Name)
+			this.Name := SubStr(Name, 8, (StrLen(Name) - 10))
+			RegexMatch(this.ExternalURL, "[0-9a-zA-Z]{22}", ID)
+			this.ID := ID
+		}
+	}
+	class FullArtistObject {
+		__New(response) {
+			RegexMatch(response, "https:\/\/o.*?""", ExternalURL)
+			this.ExternalURL := SubStr(ExternalURL, 1, (StrLen(ExternalURL) - 1))
+			RegexMatch(response, "me"" : "".*?"",\n", Name)
+			this.Name := SubStr(Name, 8, (StrLen(Name) - 10))
+			RegexMatch(this.ExternalURL, "[0-9a-zA-Z]{22}", ID)
+			this.ID := ID
+			RegexMatch(response, """total"" : [0-9]*", Followers)
+			this.Followers := SubStr(Followers, 10)
+			RegexMatch(response, "s"" : \[.*? ]", Genres)
+			this.Genres := StrSplit(SubStr(Genres, 7) , ",", "[ ""]")
+		}
 	}
 }
 class Util {
@@ -240,7 +264,7 @@ class Artists {
 		this.ParentObject := ParentObject
 	}
 	GetArtist(ArtistID) {
-		return this.ParentObject.Util.CustomCall("GET", "artists/" . ArtistID)
+		return new this.ParentObject.FullArtistObject(this.ParentObject.Util.CustomCall("GET", "artists/" . ArtistID))
 	}
 	GetArtistAlbums(ArtistID) {
 		return this.ParentObject.Util.CustomCall("GET", "artists/" . ArtistID . "/albums")
