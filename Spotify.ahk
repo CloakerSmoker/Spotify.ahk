@@ -1,4 +1,4 @@
-﻿#MaxThreads 2
+#MaxThreads 2
 class Spotify {
 	__New() {
 		this.Util := new Util(this)
@@ -7,11 +7,35 @@ class Spotify {
 		this.Albums := new Albums(this)
 		this.Artists := new Artists(this)
 	}
+	class SimpleArtistObject {
+		__New(response) {
+			RegexMatch(response, "https:\/\/o.*?""", ExternalURL)
+			this.ExternalURL := SubStr(ExternalURL, 1, (StrLen(ExternalURL) - 1))
+			RegexMatch(response, "me"" : "".*?"",\n", Name)
+			this.Name := SubStr(Name, 8, (StrLen(Name) - 10))
+			RegexMatch(this.ExternalURL, "[0-9a-zA-Z]{22}", ID)
+			this.ID := ID
+		}
+	}
+	class FullArtistObject {
+		__New(response) {
+			RegexMatch(response, "https:\/\/o.*?""", ExternalURL)
+			this.ExternalURL := SubStr(ExternalURL, 1, (StrLen(ExternalURL) - 1))
+			RegexMatch(response, "me"" : "".*?"",\n", Name)
+			this.Name := SubStr(Name, 8, (StrLen(Name) - 10))
+			RegexMatch(this.ExternalURL, "[0-9a-zA-Z]{22}", ID)
+			this.ID := ID
+			RegexMatch(response, """total"" : [0-9]*", Followers)
+			this.Followers := SubStr(Followers, 10)
+			RegexMatch(response, "s"" : \[.*? ]", Genres)
+			this.Genres := StrSplit(SubStr(Genres, 7) , ",", "[ ""]")
+		}
+	}
 }
 class Util {
 	__New(ParentObject) {
-        this.ParentObject:=ParentObject
-        this.RefreshLoc:="HKCU\Software\SpotifyAHK"
+		this.ParentObject:=ParentObject
+		this.RefreshLoc:="HKCU\Software\SpotifyAHK"
 		this.StartUp()
 	}
 	StartUp() {
@@ -27,7 +51,7 @@ class Util {
 			server := new HttpServer()
 			server.SetPaths(paths)
 			server.Serve(8000)
-			Run, % "https://accounts.spotify.com/en/authorize?client_id=9fe26296bb7b4330ac59339efd2742b0&response_type=code&redirect_uri=http:%2F%2Flocalhost:8000%2Fcallback&scope=user-modify-playback-state"
+			Run, % "https://accounts.spotify.com/en/authorize?client_id=9fe26296bb7b4330ac59339efd2742b0&response_type=code&redirect_uri=http:%2F%2Flocalhost:8000%2Fcallback&scope=user-modify-playback-state%20user-read-currently-playing%20user-read-playback-state%20user-library-modify%20user-library-read%20user-read-email%20user-read-private%20user-read-birthdate%20user-follow-read%20user-follow-modify%20playlist-read-private%20playlist-read-collaborative%20playlist-modify-public%20playlist-modify-private%20user-read-recently-played%20user-top-read"
 			loop {
 				Sleep, -1
 			} until (this.InternalIsReady() = true)
@@ -45,7 +69,7 @@ class Util {
 		}
 	}
 	RefreshAuth(refresh) {
-		refresh:=this.decryptToken(refresh)
+		refresh := this.DecryptToken(refresh)
 		arg := {1:{1:"Content-Type", 2:"application/x-www-form-urlencoded"}, 2:{1:"Authorization", 2:"Basic OWZlMjYyOTZiYjdiNDMzMGFjNTkzMzllZmQyNzQyYjA6ZWNhNjU2ZDFkNTczNDNhOTllMWJjNWVmODQ0YmY2NGM="}}
 		response := this.CustomCall("POST", "https://accounts.spotify.com/api/token?grant_type=refresh_token&refresh_token=" . refresh, arg)
 		this.authState := true
@@ -76,8 +100,8 @@ class Util {
 		if !(response) {
 			return
 		}
-        response:=this.encryptToken(this.TrimToken(response))
-		RegWrite, REG_SZ,% this.RefreshLoc,RefreshToken,% response
+		response:=this.encryptToken(this.TrimToken(response))
+		RegWrite, REG_SZ, % this.RefreshLoc, RefreshToken, % response
 		return
 	}
 	TrimToken(token) {
@@ -126,28 +150,27 @@ class Util {
 		this.auth := req.queries["code"]
 		this.fail := req.queries["error"]
 	}
-	encryptToken(rToken){
-		return crypt.encrypt.strEncrypt(rToken,this.getIDs(),5,3)
+	EncryptToken(RefreshToken){
+		return crypt.encrypt.strEncrypt(RefreshToken, this.GetIDs(), 5, 3)
 	}
-	decryptToken(rToken){
+	DecryptToken(RefreshToken){
 		try{
-			return crypt.encrypt.strDecrypt(rToken,this.getIDs(),5,3)
-		}catch{
-			regDelete,% this.RefreshLoc,refreshToken
+			return crypt.encrypt.strDecrypt(RefreshToken, this.GetIDs(), 5, 3)
+		} catch {
+			regDelete, % this.RefreshLoc, RefreshToken
 			this.startup()
-			regRead,nToken,% this.RefreshLoc,refreshToken
-			return crypt.encrypt.strDecrypt(nToken,this.getIDs(),5,3)
+			regRead, RefreshToken, % this.RefreshLoc, refreshToken
+			return crypt.encrypt.strDecrypt(RefreshToken, this.GetIDs(), 5, 3)
 		}
 	}
-	getIDs(){
-		static infos:=[["ProcessorID","Win32_Service"],["SKU","Win32_BaseBoard"],["DeviceID","Win32_USBController"]]
-		wmi:=comObjGet("winmgmts:")
-		id:=
-		
-		for i,a in infos {
+	GetIDs(){
+		static infos := [["ProcessorID", "Win32_Service"], ["SKU", "Win32_BaseBoard"], ["DeviceID", "Win32_USBController"]]
+		wmi := ComObjGet("winmgmts:")
+		id := ""
+		for i, a in infos {
 			wmin:=wmi.execQuery("Select " . a[1] . " from " . a[2])._newEnum
 			while wmin[wminf]
-				id.=wminf[a[1]]
+				id .= wminf[a[1]]
 		}
 		return id
 	}
@@ -241,7 +264,7 @@ class Artists {
 		this.ParentObject := ParentObject
 	}
 	GetArtist(ArtistID) {
-		return this.ParentObject.Util.CustomCall("GET", "artists/" . ArtistID)
+		return new this.ParentObject.FullArtistObject(this.ParentObject.Util.CustomCall("GET", "artists/" . ArtistID))
 	}
 	GetArtistAlbums(ArtistID) {
 		return this.ParentObject.Util.CustomCall("GET", "artists/" . ArtistID . "/albums")
