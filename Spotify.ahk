@@ -58,13 +58,18 @@ class Util {
 			this.GetTokens()
 		}
 	}
-	SetTimeout(response) {
-		RegexMatch(response, "[0-9]{4}", timeout)
-		this.timeout := A_Hour + ((timeout / 60) / 60)
+	SetTimeout() {
+		TimeOut := A_Now
+		EnvAdd, TimeOut, 1, hours
+		this.TimeOut := TimeOut
 	}
 	CheckTimeout() {
-		if (A_Hour = this.timeout) {
-			RegRead, refresh,% this.RefreshLoc, refreshToken
+		if (this.TimeLastChecked = A_Min) {
+			return
+		}
+		this.TimeLastChecked := A_Min
+		if (A_Now > this.TimeOut) {
+			RegRead, refresh, % this.RefreshLoc, refreshToken
 			this.RefreshAuth(refresh)
 		}
 	}
@@ -78,7 +83,7 @@ class Util {
 		}
 		RegexMatch(response, "s_token"":"".*?""", token)
 		this.token := this.TrimToken(token)
-		this.SetTimeout(response)
+		this.SetTimeout()
 	}
 	GetTokens() {
 		if (this.fail) {
