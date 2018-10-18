@@ -11,18 +11,15 @@ class Spotify {
 class Util {
 	__New(ParentObject) {
 		this.ParentObject := ParentObject
-		MsgBox, % "New util created"
 		this.RefreshLoc := "HKCU\Software\SpotifyAHK"
 		this.StartUp()
 	}
 	StartUp() {
 		RegRead, refresh, % this.RefreshLoc, refreshToken
-		MsgBox, % "StartUp called with refresh enc token of:`n" . refresh
 		if (refresh) {
 			this.RefreshTempToken(refresh)
 		}
 		else {
-			MsgBox, % "Doing web auth"
 			this.auth := ""
 			paths := {}
 			paths["/callback"] := this["authCallback"].bind(this)
@@ -31,7 +28,6 @@ class Util {
 			server.SetPaths(paths)
 			server.Serve(8000)
 			Run, % "https://accounts.spotify.com/en/authorize?client_id=9fe26296bb7b4330ac59339efd2742b0&response_type=code&redirect_uri=http:%2F%2Flocalhost:8000%2Fcallback&scope=user-modify-playback-state%20user-read-currently-playing%20user-read-playback-state%20user-library-modify%20user-library-read%20user-read-email%20user-read-private%20user-read-birthdate%20user-follow-read%20user-follow-modify%20playlist-read-private%20playlist-read-collaborative%20playlist-modify-public%20playlist-modify-private%20user-read-recently-played%20user-top-read"
-			MsgBox, % "Waiting for web auth"
 			loop {
 				Sleep, -1
 			} until (this.WebAuthDone() = true)
@@ -44,24 +40,19 @@ class Util {
 		this.TimeOut := TimeOut
 	}
 	CheckTimeout() {
-		MsgBox, % "CheckTimeout called"
 		if (this.TimeLastChecked = A_Min) {
 			return
 		}
 		this.TimeLastChecked := A_Min
 		if (A_Now > this.TimeOut) {
 			RegRead, refresh, % this.RefreshLoc, refreshToken
-			MsgBox, % "Timeout confirmed"
 			this.RefreshTempToken(refresh)
 		}
 	}
 	RefreshTempToken(refresh) {
-		MsgBox, % "Refreshing temp token with enc refresh:`n" . refresh
 		refresh := this.DecryptToken(refresh)
-		MsgBox, % "Refreshing temp token with dec refresh:`n" . refresh
 		arg := {1:{1:"Content-Type", 2:"application/x-www-form-urlencoded"}, 2:{1:"Authorization", 2:"Basic OWZlMjYyOTZiYjdiNDMzMGFjNTkzMzllZmQyNzQyYjA6ZWNhNjU2ZDFkNTczNDNhOTllMWJjNWVmODQ0YmY2NGM="}}
 		response := this.CustomCall("POST", "https://accounts.spotify.com/api/token?grant_type=refresh_token&refresh_token=" . refresh, arg, true)
-		MsgBox, % "Spoofy responds to refresh with:`n" . response
 		this.authState := true
 		if (InStr(response, "refresh_token")) {
 			this.SaveRefreshToken(response)
@@ -71,7 +62,6 @@ class Util {
 		this.SetTimeout()
 	}
 	FetchTokens() {
-		MsgBox, % "FetchTokens called"
 		if (this.fail) {
 			ErrorLevel := 1
 			return
@@ -82,7 +72,6 @@ class Util {
 		AHKsock_Close(-1)
 		arg := {1:{1:"Content-Type", 2:"application/x-www-form-urlencoded"}, 2:{1:"Authorization", 2:"Basic OWZlMjYyOTZiYjdiNDMzMGFjNTkzMzllZmQyNzQyYjA6ZWNhNjU2ZDFkNTczNDNhOTllMWJjNWVmODQ0YmY2NGM="}}
 		response := this.CustomCall("POST", "https://accounts.spotify.com/api/token?grant_type=authorization_code&code=" . this.auth . "&redirect_uri=http:%2F%2Flocalhost:8000%2Fcallback", arg, true)
-		MsgBox, % "Spoofy responds with:`n" . response
 		RegexMatch(response, "s_token"":"".*?""", token)
 		this.token := this.TrimToken(token)
 		this.SaveRefreshToken(response)
@@ -97,7 +86,7 @@ class Util {
 		return
 	}
 	TrimToken(token) {
-		return (SubStr(token, 11, (StrLen(token) - 12)))
+		return SubStr(token, 13, (StrLen(token) - 1))
 	}
 	CustomCall(method, url, HeaderArray := "", noTimeOut := false) {
 		if !(noTimeOut) {
