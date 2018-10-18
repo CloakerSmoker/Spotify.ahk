@@ -38,30 +38,30 @@ class Util {
 			this.FetchTokens()
 		}
 	}
-	; TIMEOUT CHECKER/SETTER
 	SetTimeout() {
 		TimeOut := A_Now
 		EnvAdd, TimeOut, 1, hours
 		this.TimeOut := TimeOut
 	}
 	CheckTimeout() {
+		MsgBox, % "CheckTimeout called"
 		if (this.TimeLastChecked = A_Min) {
 			return
 		}
 		this.TimeLastChecked := A_Min
 		if (A_Now > this.TimeOut) {
 			RegRead, refresh, % this.RefreshLoc, refreshToken
+			MsgBox, % "Timeout confirmed"
 			this.RefreshTempToken(refresh)
 		}
 	}
-	; AUTHORIZATION FUNCTIONS
 	RefreshTempToken(refresh) {
 		MsgBox, % "Refreshing temp token with enc refresh:`n" . refresh
 		refresh := this.DecryptToken(refresh)
 		MsgBox, % "Refreshing temp token with dec refresh:`n" . refresh
 		arg := {1:{1:"Content-Type", 2:"application/x-www-form-urlencoded"}, 2:{1:"Authorization", 2:"Basic OWZlMjYyOTZiYjdiNDMzMGFjNTkzMzllZmQyNzQyYjA6ZWNhNjU2ZDFkNTczNDNhOTllMWJjNWVmODQ0YmY2NGM="}}
 		response := this.CustomCall("POST", "https://accounts.spotify.com/api/token?grant_type=refresh_token&refresh_token=" . refresh, arg, true)
-		MsgBox, % "Spoofy responds to refresh with:`n"
+		MsgBox, % "Spoofy responds to refresh with:`n" . response
 		this.authState := true
 		if (InStr(response, "refresh_token")) {
 			this.SaveRefreshToken(response)
@@ -81,13 +81,12 @@ class Util {
 		}
 		AHKsock_Close(-1)
 		arg := {1:{1:"Content-Type", 2:"application/x-www-form-urlencoded"}, 2:{1:"Authorization", 2:"Basic OWZlMjYyOTZiYjdiNDMzMGFjNTkzMzllZmQyNzQyYjA6ZWNhNjU2ZDFkNTczNDNhOTllMWJjNWVmODQ0YmY2NGM="}}
-		response := this.CustomCall("POST", "https://accounts.spotify.com/api/token?grant_type=authorization_code&code=" . this.auth . "&redirect_uri=http:%2F%2Flocalhost:8000%2Fcallback", arg)
+		response := this.CustomCall("POST", "https://accounts.spotify.com/api/token?grant_type=authorization_code&code=" . this.auth . "&redirect_uri=http:%2F%2Flocalhost:8000%2Fcallback", arg, true)
 		MsgBox, % "Spoofy responds with:`n" . response
 		RegexMatch(response, "s_token"":"".*?""", token)
 		this.token := this.TrimToken(token)
 		this.SaveRefreshToken(response)
 	}
-	; MISC TOKEN FUNCTIONS
 	SaveRefreshToken(response) {
 		RegexMatch(response, "h_token"":"".*?""", response)
 		if !(response) {
@@ -100,11 +99,10 @@ class Util {
 	TrimToken(token) {
 		return (SubStr(token, 11, (StrLen(token) - 12)))
 	}
-	; API CALL FUNCTION WITH AUTO-AUTH/HEADERS
-	CustomCall(method, url, HeaderArray := "", noTimeOut) {
+	CustomCall(method, url, HeaderArray := "", noTimeOut := false) {
 		if !(noTimeOut) {
 			this.CheckTimeout()
-
+		}
 		if !((InStr(url, "https://api.spotify.com")) || (InStr(url, "https://accounts.spotify.com/api/"))) {
 			url := "https://api.spotify.com/v1/" . url
 		}
@@ -119,7 +117,6 @@ class Util {
 		SpotifyWinHttp.Send()
 		return SpotifyWinHttp.ResponseText
 	}
-	; WEB AUTH FUNCTIONS
 	NotFound(ByRef req, ByRef res) {
 		res.SetBodyText("Page not found")
 	}
@@ -132,7 +129,6 @@ class Util {
 	WebAuthDone() {
 		return (this.auth ? true : false)
 	}
-	; TOKEN ENCRYPTION
 	EncryptToken(RefreshToken) {
 		return crypt.encrypt.strEncrypt(RefreshToken, this.GetIDs(), 5, 3)
 	}
