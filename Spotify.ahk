@@ -34,6 +34,9 @@ class Util {
 			this.FetchTokens()
 		}
 	}
+	
+	; Timeout methods
+	
 	SetTimeout() {
 		TimeOut := A_Now
 		EnvAdd, TimeOut, 1, hours
@@ -49,6 +52,9 @@ class Util {
 			this.RefreshTempToken(refresh)
 		}
 	}
+	
+	; API token operations
+	
 	RefreshTempToken(refresh) {
 		refresh := this.DecryptToken(refresh)
 		arg := {1:{1:"Content-Type", 2:"application/x-www-form-urlencoded"}, 2:{1:"Authorization", 2:"Basic OWZlMjYyOTZiYjdiNDMzMGFjNTkzMzllZmQyNzQyYjA6ZWNhNjU2ZDFkNTczNDNhOTllMWJjNWVmODQ0YmY2NGM="}}
@@ -76,6 +82,9 @@ class Util {
 		this.token := this.TrimToken(token)
 		this.SaveRefreshToken(response)
 	}
+	
+	; Local token operations
+	
 	SaveRefreshToken(response) {
 		RegexMatch(response, "h_token"":"".*?""", response)
 		if !(response) {
@@ -88,6 +97,9 @@ class Util {
 	TrimToken(token) {
 		return SubStr(token, 13, (StrLen(token) - 1))
 	}
+	
+	; API call method with auto-auth/timeout check/base URL
+	
 	CustomCall(method, url, HeaderArray := "", noTimeOut := false) {
 		if !(noTimeOut) {
 			this.CheckTimeout()
@@ -106,6 +118,9 @@ class Util {
 		SpotifyWinHttp.Send()
 		return SpotifyWinHttp.ResponseText
 	}
+	
+	; Web auth methods
+	
 	NotFound(ByRef req, ByRef res) {
 		res.SetBodyText("Page not found")
 	}
@@ -118,6 +133,9 @@ class Util {
 	WebAuthDone() {
 		return (this.auth ? true : false)
 	}
+	
+	; Token encryption/decryption methods
+	
 	EncryptToken(RefreshToken) {
 		return crypt.encrypt.strEncrypt(RefreshToken, this.GetIDs(), 5, 3)
 	}
@@ -131,18 +149,18 @@ class Util {
 			return crypt.encrypt.strDecrypt(RefreshToken, this.GetIDs(), 5, 3)
 		}
 	}
-	GetIDs(){
+	GetIDs() {
 		static infos := [["ProcessorID", "Win32_Service"], ["SKU", "Win32_BaseBoard"], ["DeviceID", "Win32_USBController"]]
 		wmi := ComObjGet("winmgmts:")
 		id := ""
 		for i, a in infos {
-			wmin:=wmi.execQuery("Select " . a[1] . " from " . a[2])._newEnum
-			while wmin[wminf]
+			wmin := wmi.execQuery("Select " . a[1] . " from " . a[2])._newEnum
+			while wmin[wminf] {
 				id .= wminf[a[1]]
+			}
 		}
 		return id
 	}
-	
 }
 class Player {
 	__New(ParentObject) {
