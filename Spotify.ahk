@@ -18,8 +18,7 @@ class Util {
 		RegRead, refresh, % this.RefreshLoc, refreshToken
 		if (refresh) {
 			this.RefreshTempToken(refresh)
-		}
-		else {
+		} else {
 			this.auth := ""
 			paths := {}
 			paths["/callback"] := this["authCallback"].bind(this)
@@ -63,8 +62,8 @@ class Util {
 		if (InStr(response, "refresh_token")) {
 			this.SaveRefreshToken(response)
 		}
-		RegexMatch(response, "s_token"":"".*?""", token)
-		this.token := this.TrimToken(token)
+		RegexMatch(response, "access_token"":""\K.*?(?="")", token)
+		this.token := token
 		this.SetTimeout()
 	}
 	FetchTokens() {
@@ -78,24 +77,21 @@ class Util {
 		AHKsock_Close(-1)
 		arg := {1:{1:"Content-Type", 2:"application/x-www-form-urlencoded"}, 2:{1:"Authorization", 2:"Basic OWZlMjYyOTZiYjdiNDMzMGFjNTkzMzllZmQyNzQyYjA6ZWNhNjU2ZDFkNTczNDNhOTllMWJjNWVmODQ0YmY2NGM="}}
 		response := this.CustomCall("POST", "https://accounts.spotify.com/api/token?grant_type=authorization_code&code=" . this.auth . "&redirect_uri=http:%2F%2Flocalhost:8000%2Fcallback", arg, true)
-		RegexMatch(response, "s_token"":"".*?""", token)
-		this.token := this.TrimToken(token)
+		RegexMatch(response, "access_token"":""\K.*?(?="")", token)
+		this.token := token
 		this.SaveRefreshToken(response)
 	}
 	
 	; Local token operations
 	
 	SaveRefreshToken(response) {
-		RegexMatch(response, "h_token"":"".*?""", response)
+		RegexMatch(response, "refresh_token"":""\K.*?(?="")", response)
 		if !(response) {
 			return
 		}
-		response := this.encryptToken(this.TrimToken(response))
+		response := this.encryptToken(response)
 		RegWrite, REG_SZ, % this.RefreshLoc, RefreshToken, % response
 		return
-	}
-	TrimToken(token) {
-		return SubStr(token, 13, (StrLen(token) - 1))
 	}
 	
 	; API call method with auto-auth/timeout check/base URL
