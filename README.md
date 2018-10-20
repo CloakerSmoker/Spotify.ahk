@@ -1,4 +1,11 @@
 # Spotify.ahk
+
+Disclaimer: Some features of Spotify.ahk will not work for non-premium users, this is not a limition of Spotify.ahk, but a limit in Spotify's Connect Web API as stated in its documentation.
+```
+Note:
+  With Connect Web API you can only control Spotify Premium users’ playback.
+``` 
+
 An AutoHotkey wrapper for the Spotify web API designed to allow control over Spotify's internal volume slider and provide various other functionality.
 
 Uses a slightly modified version of the AHKhttp library by zhamlin (https://github.com/zhamlin/AHKhttp), the AHKsock library by jleb (https://github.com/jleb/AHKsock) and the Cyrpt libraray by Deo (https://autohotkey.com/board/topic/67155-ahk-l-crypt-ahk-cryptography-class-encryption-hashing/)
