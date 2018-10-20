@@ -7,43 +7,18 @@ class Spotify {
 		this.Albums := new Albums(this)
 		this.Artists := new Artists(this)
 	}
-	class SimpleArtistObject {
-		__New(response) {
-			RegexMatch(response, "https:\/\/o.*?""", ExternalURL)
-			this.ExternalURL := SubStr(ExternalURL, 1, (StrLen(ExternalURL) - 1))
-			RegexMatch(response, "me"" : "".*?"",\n", Name)
-			this.Name := SubStr(Name, 8, (StrLen(Name) - 10))
-			RegexMatch(this.ExternalURL, "[0-9a-zA-Z]{22}", ID)
-			this.ID := ID
-		}
-	}
-	class FullArtistObject {
-		__New(response) {
-			RegexMatch(response, "https:\/\/o.*?""", ExternalURL)
-			this.ExternalURL := SubStr(ExternalURL, 1, (StrLen(ExternalURL) - 1))
-			RegexMatch(response, "me"" : "".*?"",\n", Name)
-			this.Name := SubStr(Name, 8, (StrLen(Name) - 10))
-			RegexMatch(this.ExternalURL, "[0-9a-zA-Z]{22}", ID)
-			this.ID := ID
-			RegexMatch(response, """total"" : [0-9]*", Followers)
-			this.Followers := SubStr(Followers, 10)
-			RegexMatch(response, "s"" : \[.*? ]", Genres)
-			this.Genres := StrSplit(SubStr(Genres, 7) , ",", "[ ""]")
-		}
-	}
 }
 class Util {
-	__New(ParentObject) {
-		this.ParentObject:=ParentObject
-		this.RefreshLoc:="HKCU\Software\SpotifyAHK"
+	__New(ByRef ParentObject) {
+		this.ParentObject := ParentObject
+		this.RefreshLoc := "HKCU\Software\SpotifyAHK"
 		this.StartUp()
 	}
 	StartUp() {
-		RegRead, refresh,% this.RefreshLoc, refreshToken
+		RegRead, refresh, % this.RefreshLoc, refreshToken
 		if (refresh) {
-			this.RefreshAuth(refresh)
-		}
-		else {
+			this.RefreshTempToken(refresh)
+		} else {
 			this.auth := ""
 			paths := {}
 			paths["/callback"] := this["authCallback"].bind(this)
@@ -54,10 +29,13 @@ class Util {
 			Run, % "https://accounts.spotify.com/en/authorize?client_id=9fe26296bb7b4330ac59339efd2742b0&response_type=code&redirect_uri=http:%2F%2Flocalhost:8000%2Fcallback&scope=user-modify-playback-state%20user-read-currently-playing%20user-read-playback-state%20user-library-modify%20user-library-read%20user-read-email%20user-read-private%20user-read-birthdate%20user-follow-read%20user-follow-modify%20playlist-read-private%20playlist-read-collaborative%20playlist-modify-public%20playlist-modify-private%20user-read-recently-played%20user-top-read"
 			loop {
 				Sleep, -1
-			} until (this.InternalIsReady() = true)
-			this.GetTokens()
+			} until (this.WebAuthDone() = true)
+			this.FetchTokens()
 		}
 	}
+	
+	; Timeout methods
+	
 	SetTimeout() {
 		TimeOut := A_Now
 		EnvAdd, TimeOut, 1, hours
@@ -70,22 +48,25 @@ class Util {
 		this.TimeLastChecked := A_Min
 		if (A_Now > this.TimeOut) {
 			RegRead, refresh, % this.RefreshLoc, refreshToken
-			this.RefreshAuth(refresh)
+			this.RefreshTempToken(refresh)
 		}
 	}
-	RefreshAuth(refresh) {
+	
+	; API token operations
+	
+	RefreshTempToken(refresh) {
 		refresh := this.DecryptToken(refresh)
 		arg := {1:{1:"Content-Type", 2:"application/x-www-form-urlencoded"}, 2:{1:"Authorization", 2:"Basic OWZlMjYyOTZiYjdiNDMzMGFjNTkzMzllZmQyNzQyYjA6ZWNhNjU2ZDFkNTczNDNhOTllMWJjNWVmODQ0YmY2NGM="}}
-		response := this.CustomCall("POST", "https://accounts.spotify.com/api/token?grant_type=refresh_token&refresh_token=" . refresh, arg)
+		response := this.CustomCall("POST", "https://accounts.spotify.com/api/token?grant_type=refresh_token&refresh_token=" . refresh, arg, true)
 		this.authState := true
 		if (InStr(response, "refresh_token")) {
-			this.SaveRefresh(response)
+			this.SaveRefreshToken(response)
 		}
-		RegexMatch(response, "s_token"":"".*?""", token)
-		this.token := this.TrimToken(token)
+		RegexMatch(response, "access_token"":""\K.*?(?="")", token)
+		this.token := token
 		this.SetTimeout()
 	}
-	GetTokens() {
+	FetchTokens() {
 		if (this.fail) {
 			ErrorLevel := 1
 			return
@@ -95,43 +76,30 @@ class Util {
 		}
 		AHKsock_Close(-1)
 		arg := {1:{1:"Content-Type", 2:"application/x-www-form-urlencoded"}, 2:{1:"Authorization", 2:"Basic OWZlMjYyOTZiYjdiNDMzMGFjNTkzMzllZmQyNzQyYjA6ZWNhNjU2ZDFkNTczNDNhOTllMWJjNWVmODQ0YmY2NGM="}}
-		response := this.CustomCall("POST", "https://accounts.spotify.com/api/token?grant_type=authorization_code&code=" . this.auth . "&redirect_uri=http:%2F%2Flocalhost:8000%2Fcallback", arg)
-		RegexMatch(response, "s_token"":"".*?""", token)
-		this.token := this.TrimToken(token)
-		this.SaveRefresh(response)
+		response := this.CustomCall("POST", "https://accounts.spotify.com/api/token?grant_type=authorization_code&code=" . this.auth . "&redirect_uri=http:%2F%2Flocalhost:8000%2Fcallback", arg, true)
+		RegexMatch(response, "access_token"":""\K.*?(?="")", token)
+		this.token := token
+		this.SaveRefreshToken(response)
 	}
-	SaveRefresh(response) {
-		RegexMatch(response, "h_token"":"".*?""", response)
+	
+	; Local token operations
+	
+	SaveRefreshToken(response) {
+		RegexMatch(response, "refresh_token"":""\K.*?(?="")", response)
 		if !(response) {
 			return
 		}
-		response:=this.encryptToken(this.TrimToken(response))
+		response := this.encryptToken(response)
 		RegWrite, REG_SZ, % this.RefreshLoc, RefreshToken, % response
 		return
 	}
-	TrimToken(token) {
-		StringTrimLeft, token, token, 10
-		StringTrimRight, token, token, 1
-		return token
-	}
-	IsReady() {
-		if (this.token != "") {
-			return true
+	
+	; API call method with auto-auth/timeout check/base URL
+	
+	CustomCall(method, url, HeaderArray := "", noTimeOut := false) {
+		if !(noTimeOut) {
+			this.CheckTimeout()
 		}
-		else {
-			return false
-		}
-	}
-	InternalIsReady() {
-		if (this.auth != "") {
-			return true
-		}
-		else {
-			return false
-		}
-	}
-	CustomCall(method, url, HeaderArray := "") {
-		this.CheckTimeout()
 		if !((InStr(url, "https://api.spotify.com")) || (InStr(url, "https://accounts.spotify.com/api/"))) {
 			url := "https://api.spotify.com/v1/" . url
 		}
@@ -146,6 +114,9 @@ class Util {
 		SpotifyWinHttp.Send()
 		return SpotifyWinHttp.ResponseText
 	}
+	
+	; Web auth methods
+	
 	NotFound(ByRef req, ByRef res) {
 		res.SetBodyText("Page not found")
 	}
@@ -155,33 +126,40 @@ class Util {
 		this.auth := req.queries["code"]
 		this.fail := req.queries["error"]
 	}
-	EncryptToken(RefreshToken){
+	WebAuthDone() {
+		return (this.auth ? true : false)
+	}
+	
+	; Token encryption/decryption methods
+	
+	EncryptToken(RefreshToken) {
 		return crypt.encrypt.strEncrypt(RefreshToken, this.GetIDs(), 5, 3)
 	}
-	DecryptToken(RefreshToken){
-		try{
+	DecryptToken(RefreshToken) {
+		try {
 			return crypt.encrypt.strDecrypt(RefreshToken, this.GetIDs(), 5, 3)
 		} catch {
-			regDelete, % this.RefreshLoc, RefreshToken
-			this.startup()
-			regRead, RefreshToken, % this.RefreshLoc, refreshToken
+			RegDelete, % this.RefreshLoc, RefreshToken
+			this.StartUp()
+			RegRead, RefreshToken, % this.RefreshLoc, refreshToken
 			return crypt.encrypt.strDecrypt(RefreshToken, this.GetIDs(), 5, 3)
 		}
 	}
-	GetIDs(){
+	GetIDs() {
 		static infos := [["ProcessorID", "Win32_Service"], ["SKU", "Win32_BaseBoard"], ["DeviceID", "Win32_USBController"]]
 		wmi := ComObjGet("winmgmts:")
 		id := ""
 		for i, a in infos {
-			wmin:=wmi.execQuery("Select " . a[1] . " from " . a[2])._newEnum
-			while wmin[wminf]
+			wmin := wmi.execQuery("Select " . a[1] . " from " . a[2])._newEnum
+			while wmin[wminf] {
 				id .= wminf[a[1]]
+			}
 		}
 		return id
 	}
 }
 class Player {
-	__New(ParentObject) {
+	__New(ByRef ParentObject) {
 		this.ParentObject := ParentObject
 	}
 	SetVolume(volume) {
@@ -197,7 +175,7 @@ class Player {
 		return this.ParentObject.Util.CustomCall("GET", "me/player/recently-played")
 	}
 	PausePlayback() {
-		return this.ParentObject.Util.CustomCall("PUT", "me/player/pause")
+		return this.ParentObject.Util.CustomCall("POST", "me/player/pause")
 	}
 	SeekTime(TimeInMS) {
 		return this.ParentObject.Util.CustomCall("PUT", "me/player/seek?position_ms=" . TimeInMS)
@@ -225,7 +203,7 @@ class Player {
 	}	
 }
 class Library {
-	__New(ParentObject) {
+	__New(ByRef ParentObject) {
 		this.ParentObject := ParentObject
 	}
 	CheckSavedForAlbum(AlbumID) {
@@ -254,7 +232,7 @@ class Library {
 	}
 }
 class Albums {
-	__New(ParentObject) {
+	__New(ByRef ParentObject) {
 		this.ParentObject := ParentObject
 	}
 	GetAlbum(AlbumID) {
@@ -265,11 +243,11 @@ class Albums {
 	}
 }
 class Artists {
-	__New(ParentObject) {
+	__New(ByRef ParentObject) {
 		this.ParentObject := ParentObject
 	}
 	GetArtist(ArtistID) {
-		return new this.ParentObject.FullArtistObject(this.ParentObject.Util.CustomCall("GET", "artists/" . ArtistID))
+		return this.ParentObject.Util.CustomCall("GET", "artists/" . ArtistID)
 	}
 	GetArtistAlbums(ArtistID) {
 		return this.ParentObject.Util.CustomCall("GET", "artists/" . ArtistID . "/albums")
@@ -279,6 +257,17 @@ class Artists {
 	}
 	GetArtistTopTracks(ArtistID) {
 		return this.ParentObject.Util.CustomCall("GET", "artists/" . ArtistID . "/top-tracks")
+	}
+}
+class Tracks {
+	__New(ByRef ParentObject) {
+		this.ParentObject := ParentObject
+	}
+	GetAudioFeatures(TrackID) {
+		return this.ParentObject.Util.CustomCall("GET", "audio-features/" . TrackID)
+	}
+	GetTrack(TrackID) {
+		return this.ParentObject.Util.CustomCall("GET", "tracks/" . TrackID)
 	}
 }
 #Include <AHKsock>
