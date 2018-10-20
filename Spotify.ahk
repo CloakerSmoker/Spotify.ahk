@@ -9,7 +9,7 @@ class Spotify {
 	}
 }
 class Util {
-	__New(ParentObject) {
+	__New(ByRef ParentObject) {
 		this.ParentObject := ParentObject
 		this.RefreshLoc := "HKCU\Software\SpotifyAHK"
 		this.StartUp()
@@ -159,7 +159,7 @@ class Util {
 	}
 }
 class Player {
-	__New(ParentObject) {
+	__New(ByRef ParentObject) {
 		this.ParentObject := ParentObject
 	}
 	SetVolume(volume) {
@@ -203,7 +203,7 @@ class Player {
 	}	
 }
 class Library {
-	__New(ParentObject) {
+	__New(ByRef ParentObject) {
 		this.ParentObject := ParentObject
 	}
 	CheckSavedForAlbum(AlbumID) {
@@ -232,7 +232,7 @@ class Library {
 	}
 }
 class Albums {
-	__New(ParentObject) {
+	__New(ByRef ParentObject) {
 		this.ParentObject := ParentObject
 	}
 	GetAlbum(AlbumID) {
@@ -243,7 +243,7 @@ class Albums {
 	}
 }
 class Artists {
-	__New(ParentObject) {
+	__New(ByRef ParentObject) {
 		this.ParentObject := ParentObject
 	}
 	GetArtist(ArtistID) {
@@ -260,7 +260,7 @@ class Artists {
 	}
 }
 class Tracks {
-	__New(ParentObject) {
+	__New(ByRef ParentObject) {
 		this.ParentObject := ParentObject
 	}
 	GetAudioFeatures(TrackID) {
