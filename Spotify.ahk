@@ -175,7 +175,7 @@ class Player {
 		return this.ParentObject.Util.CustomCall("GET", "me/player/recently-played")
 	}
 	PausePlayback() {
-		return this.ParentObject.Util.CustomCall("POST", "me/player/pause")
+		return this.ParentObject.Util.CustomCall("PUT", "me/player/pause")
 	}
 	SeekTime(TimeInMS) {
 		return this.ParentObject.Util.CustomCall("PUT", "me/player/seek?position_ms=" . TimeInMS)
@@ -200,7 +200,10 @@ class Player {
 	}
 	SetShuffle(mode) {
 		return this.ParentObject.Util.CustomCall("PUT", "me/player/shuffle?state=" . (mode ? "true" : "false"))
-	}	
+	}
+	PlayPause() {
+		return inStr(this.GetCurrentPlaybackInfo(),"is_playing"" : false") ? this.ResumePlayback() : this.PausePlayback()
+	}
 }
 class Library {
 	__New(ByRef ParentObject) {
