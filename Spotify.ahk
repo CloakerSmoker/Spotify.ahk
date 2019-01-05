@@ -7,6 +7,7 @@ class Spotify {
 		this.Albums := new Albums(this)
 		this.Artists := new Artists(this)
 		this.Tracks := new Tracks(this)
+		this.Playlists := new Playlists(this)
 	}
 }
 class Util {
@@ -97,7 +98,7 @@ class Util {
 	
 	; API call method with auto-auth/timeout check/base URL
 	
-	CustomCall(method, url, HeaderArray := "", noTimeOut := false, body := "") {
+	CustomCall(method, url, HeaderArray := "", noTimeOut := false, body := "", noErr := false) {
 		if !(noTimeOut) {
 			this.CheckTimeout()
 		}
@@ -117,8 +118,8 @@ class Util {
 		
 		SpotifyWinHttp.Send(body)
 		
-		if (SpotifyWinHttp.Status > 299) {
-			throw {message: SpotifyWinHttp.Status, what: "HTTP response code not 2xx", file: A_LineFile, line: A_LineNumber}
+		if (SpotifyWinHttp.Status > 299 && !noErr) {
+			throw {message: SpotifyWinHttp.Status . " not 2xx for request """ . method . ":" . url . """.", what: "HTTP response code not 2xx", file: A_LineFile, line: A_LineNumber}
 		}
 		
 		return SpotifyWinHttp.ResponseText
@@ -177,7 +178,7 @@ class Player {
 		* Requires something to be playing
 		* returns the text response from the API, which is empty unless there is an error
 		*/
-		return this.GetCurrentPlaybackInfo().track.Save()
+		return this.GetCurrentPlaybackInfo().Track.Save()
 	}
 	UnSaveCurrentlyPlaying() {
 		/*
@@ -188,9 +189,17 @@ class Player {
 		return this.GetCurrentPlaybackInfo().track.UnSave()
 	}
 	SetVolume(volume) {
+		/*
+		* Sets the volume of playback on the active device to the percent (0-100) passed 
+		*/
 		return this.ParentObject.Util.CustomCall("PUT", "me/player/volume?volume_percent=" . volume)
 	}
 	GetCurrentPlaybackInfo() {
+		/*
+		* Calls me/player, which returns a whole bunch of different objects
+		* Translates JSON versions of track/device/context objects into custom objects
+		* Alters the original response object, so any extra info that can't be turned into an object is still returned
+		*/
 		Resp := JSON.load(this.ParentObject.Util.CustomCall("GET", "me/player"))
 		Resp.Track := new track(Resp["item"], this.ParentObject)
 		Resp.Device := new device(Resp["device"], this.ParentObject)
@@ -198,10 +207,19 @@ class Player {
 		return Resp
 	}
 	ChangeContext(ContextURI) {
+		/*
+		* OLD - I should probably remove this
+		* Change playback to a different context (AKA playlist/album/just read whatever Spotify says is a context)
+		* Only to be directly called until I finish with the playlist object
+		*/
 		return this.ParentObject.Util.CustomCall("PUT", "me/player/play",, false, JSON.Dump({"context_uri": ContextURI}))
 	}
 	
 	GetDeviceList() {
+		/*
+		* Gets an array of device objects from the API
+		* Translates them into our device class, and returns an array of custom device objects
+		*/
 		Resp := JSON.Load(this.ParentObject.Util.CustomCall("GET", "me/player/devices"))
 		RetVar := []
 		for k, v in Resp["devices"] {
@@ -210,44 +228,82 @@ class Player {
 		return RetVar
 	}
 	GetRecentlyPlayed() {
+		/*
+		* Gets an array of tracks alongside other info from the API
+		* You might also want to read this Spotify API docs page
+		* https://developer.spotify.com/documentation/web-api/reference/player/get-recently-played/
+		* WARNING, EVERYTHING IS WRAPPED IN A PAGING OBJECT, the return object is structured as follows
+		* Paging Object
+		* |-> ["items"] (An array of the below objects)
+		* |   |-> [1] Play History Object
+		* |   |       |-> ["track"] (A simplified track object)
+		* |   |       |-> ["context"] (A context object the track was played in)
+		* |   |       |-> ["played_at"] (A UTC timestamp formatted YYYY-MM-DDTHH:MM:SSZ) - Note, I've got no clue what T or Z mean
+		* |   |-> [2] Another Play History Object (They are numerically indexed, you can loop through with a for loop)
+		* I really like how easy it is to follow what this returns with that nice graphic, I think I'll do it more
+		* Builds the play history objects out of functional custom objects
+		*/
 		Resp := JSON.Load(this.ParentObject.Util.CustomCall("GET", "me/player/recently-played?limit=50"))
 		for k, v in Resp["items"] {
 			v := {"track": new track(v["track"], this.ParentObject), "context": new context(v["context"], this.ParentObject), "played_at": v["played_at"]}
 		}
 		return Resp
 	}
-	
-	PausePlayback() {
-		return this.ParentObject.Util.CustomCall("PUT", "me/player/pause")
-	}
 	SeekTime(TimeInMS) {
+		/*
+		* Tells the API to jump to the specified time in MS on the currently playing track
+		*/
 		return this.ParentObject.Util.CustomCall("PUT", "me/player/seek?position_ms=" . TimeInMS)
 	}
 	SetRepeatMode(mode) {
+		/*
+		* Tells the API to change the repeat mode
+		* Passing 1 for mode will have the currently playing track repeat
+		* Passing 2 for mode will have the currently playing context repeat
+		* Passing 3 or any other value that isn't 1/2 will turn off repeat
+		*/
 		return this.ParentObject.Util.CustomCall("PUT", "me/player/repeat?state=" . (mode = 1 ? "track" : (mode = 2 ? "context" : "off")))
 	}
+	SetShuffle(mode) {
+		/*
+		* Tells the API to change the shuffle mode to true/false, depending on what it it passed
+		*/
+		return this.ParentObject.Util.CustomCall("PUT", "me/player/shuffle?state=" . (mode ? "true" : "false"))
+	}
 	NextTrack() {
+		/*
+		* Figure this one out on your own
+		*/
 		return this.ParentObject.Util.CustomCall("POST", "me/player/next")
 	}
 	LastTrack() {
+		/*
+		* Figure this one out on your own
+		*/
 		return this.ParentObject.Util.CustomCall("POST", "me/player/previous")
 	}
+	PausePlayback() {
+		/*
+		* Figure this one out on your own
+		*/
+		return this.ParentObject.Util.CustomCall("PUT", "me/player/pause")
+	}
 	ResumePlayback() {
+		/*
+		* Figure this one out on your own
+		*/
 		return this.ParentObject.Util.CustomCall("PUT", "me/player/play")
 	}
-	SetShuffle(mode) {
-		return this.ParentObject.Util.CustomCall("PUT", "me/player/shuffle?state=" . (mode ? "true" : "false"))
-	}
 	PlayPause() {
+		/*
+		* Figure this one out on your own
+		*/
 		return ((this.GetCurrentPlaybackInfo()["is_playing"] = 0) ? (this.ResumePlayback()) : (this.PausePlayback()))
 	}
 }
 class Library {
 	__New(ByRef ParentObject) {
 		this.ParentObject := ParentObject
-	}
-	CheckSavedForAlbum(AlbumID) {
-		return this.ParentObject.Util.CustomCall("GET", "me/albums/contains?ids=" . AlbumID)
 	}
 	CheckSavedForTrack(TrackID) {
 		return this.ParentObject.Util.CustomCall("GET", "me/tracks/contains?ids=" . TrackID)
@@ -285,15 +341,77 @@ class Albums {
 	}
 }
 
+class Artists {
+	__New(ByRef ParentObject) {
+		this.ParentObject := ParentObject
+	}
+	GetArtist(ArtistID) {
+		return new artist(JSON.Load(this.ParentObject.Util.CustomCall("GET", "artists/" . ArtistID)), this.ParentObject)
+	}
+}
+class Playlists {
+	__New(ByRef ParentObject) {
+		this.ParentObject := ParentObject
+	}
+	GetPlaylist(PlaylistID) {
+		return new playlist(JSON.Load(this.ParentObject.Util.CustomCall("GET", "playlists/" . PlaylistID)), this.ParentObject)
+	}
+	GetUserPlaylists(UserID := "") {
+		return "a"
+	}
+}
+
+class playlist {
+	__New(PlaylistObj, ByRef Parent := "") {
+		this.SpotifyObj := Parent
+		this.json := PlaylistObj
+		this.description := (this.json["description"] = "null" ? "" : this.json["description"])
+		this.id := this.json["id"]
+		this.name := this.json["name"]
+		this.uri := this.json["uri"]
+		; this.owner := new user(this.json["owner"]) TODO -- User object
+		this.public := (this.json["public"] = "null" ? true : (this.json["public"] = "true" ? true : false))
+		this.tracks := []
+		for k, v in this.json["tracks"]["items"] {
+			this.tracks.Push(new track(v["track"], this.SpotifyObj))
+		}
+		this.uri := this.json["uri"]
+	}
+	
+	AddTrack(TrackIDOrTrackOBJ) {
+		if (IsObject(TrackIDOrTrackOBJ)) {
+			tid := TrackIDOrTrackOBJ.id
+		}
+		else {
+			tid := TrackIDOrTrackOBJ
+		}
+		this.SpotifyObj.Util.CustomCall("POST", "playlists/" . this.id . "/tracks?uris=spotify:track:" . tid)
+	}
+	RemoveTrack(TrackIDOrTrackOBJ) {
+		if (IsObject(TrackIDOrTrackOBJ)) {
+			tid := TrackIDOrTrackOBJ.id
+		}
+		else {
+			tid := TrackIDOrTrackOBJ
+		}
+		this.SpotifyObj.Util.CustomCall("DELETE", "playlists/" . this.id . "/tracks",, false, JSON.Dump({"tracks": [{"uri": "spotify:track:" . tid}]}))
+	}
+	Play() {
+		return this.SpotifyObj.Util.CustomCall("PUT", "me/player/play",, false, JSON.Dump({"context_uri": "spotify:playlist:" . this.id}))
+	}
+	; Fuck me, all these classes feel so half-baked, what the hell am I even doing?
+}
+
 class track {
 	__New(ResponseTrackObj, ByRef Parent := "") {
 		this.SpotifyObj := Parent
 		this.json := ResponseTrackObj
 		this.id := this.json["id"]
 		this.album := new album(this.json["album"], this.SpotifyObj) ; TODO -- Album objects
-		;for k, v in this.json["artists"] {
-		;	this.artists.Push(new artist(v)) TODO -- Artist objects
-		;}
+		this.artists := []
+		for k, v in this.json["artists"] {
+			this.artists.Push(new artist(v, this.SpotifyObj))
+		}
 		this.duration := this.json["duration_ms"]
 		this.explicit := this.json["explicit"]
 		this.name := this.json["name"]
@@ -340,6 +458,10 @@ class album {
 	UnSave() {
 		return this.SpotifyObj.Util.CustomCall("DELETE", "me/albums?ids=" . this.id)
 	}
+	
+	IsSaved() {
+		return this.SpotifyObj.Util.CustomCall("GET", "me/albums/contains?ids=" . this.id)
+	}
 }
 
 class device {
@@ -354,7 +476,7 @@ class device {
 		this.volume := this.json["volume_percent"]
 	}
 	
-	TransferPlaybackTo() {
+	SwitchTo() {
 		return this.SpotifyObj.Util.CustomCall("PUT", "me/player",, false, JSON.Dump({"device_ids": [this.id]}))
 	}
 }
@@ -370,6 +492,27 @@ class context {
 	SwitchTo() {
 		return this.SpotifyObj.Util.CustomCall("PUT", "me/player/play",, false, JSON.Dump({"context_uri": this.uri}))
 	}
+}
+class artist {
+	__New(Artistjson, ByRef Parent := "") {
+		this.SpotifyObj := Parent
+		this.json := Artistjson
+		this.genres := this.json["genres"]
+		this.id := this.json["id"]
+		this.images := this.json["images"]
+		this.name := this.json["name"]
+		this.uri := this.json["uri"]
+	}
+	
+	GetAlbums(limit := 50, offset := 0) {
+		RetVar := []
+		r := this.SpotifyObj.Util.CustomCall("GET", "https://api.spotify.com/v1/artists/" . this.id . "/albums?limit=" . limit . "&offset=" . offset)
+		for k, v in JSON.Load(r)["items"] {
+			RetVar.Push(this.SpotifyObj.Albums.GetAlbum(v["id"]))
+		}
+		return RetVar
+	}	
+	; Jesus, I have just fucking ruined the global namespace. TODO -- Nest these somewhere
 }
 
 #Include <AHKsock>
