@@ -19,7 +19,7 @@ nav:
         - 'Get A Track By ID': 'tracks/get-track.md'
         - 'Un-Save A Track': 'tracks/unsave-track.md'
         - 'Play A Track': 'tracks/play-track.md'
-    - 'Albums '>:
+    - 'Albums >':
         - 'Album Objects': 'albums/album-object.md'
         - 'Save An Album': 'albums/save-album.md'
         - 'Un-Save An Album': 'albums/unsave-album.md'
