@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  
+  <link rel="shortcut icon" href="../img/favicon.ico">
+  <title>Get A Track By ID - Spotify.ahk Docs</title>
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+  <link rel="stylesheet" href="../css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../css/theme_extra.css" type="text/css" />
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css">
+  <link href="../style.css" rel="stylesheet">
+  
+  <script>
+    // Current page data
+    var mkdocs_page_name = "Get A Track By ID";
+    var mkdocs_page_input_path = "tracks\\get-track.md";
+    var mkdocs_page_url = null;
+  </script>
+  
+  <script src="../js/jquery-2.1.1.min.js" defer></script>
+  <script src="../js/modernizr-2.8.3.min.js" defer></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script> 
+  
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+      <div class="wy-side-nav-search">
+        <a href="../index.html" class="icon icon-home"> Spotify.ahk Docs</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+	<ul class="current">
+	  
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../index.html">Home</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../about.html">About</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <span class="caption-text">Playlists ></span>
+    <ul class="subnav">
+                <li class="">
+                    
+    <a class="" href="../playlists/playlist-object.html">Playlist Objects</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../playlists/create.html">Create A Playlist</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../playlists/add-tracks.html">Add Tracks To A Playlist</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../playlists/remove-tracks.html">Remove Tracks From A Playlist</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../playlists/get-playlist.html">Get A Playlist By ID</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../playlists/delete-playlist.html">Delete A Playlist</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../playlists/play.html">Play A Playlist</a>
+                </li>
+    </ul>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <span class="caption-text">Tracks ></span>
+    <ul class="subnav">
+                <li class="">
+                    
+    <a class="" href="track-object.html">Track Objects</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="save-track.html">Save A Track</a>
+                </li>
+                <li class=" current">
+                    
+    <a class="current" href="get-track.html">Get A Track By ID</a>
+    <ul class="subnav">
+            
+    <li class="toctree-l3"><a href="#getting-a-track-by-id">Getting A Track By ID</a></li>
+    
+        <ul>
+        
+            <li><a class="toctree-l4" href="#how-to-use">How to use</a></li>
+        
+            <li><a class="toctree-l4" href="#example">Example</a></li>
+        
+        </ul>
+    
+
+    </ul>
+                </li>
+                <li class="">
+                    
+    <a class="" href="unsave-track.html">Un-Save A Track</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="play-track.html">Play A Track</a>
+                </li>
+    </ul>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <span class="caption-text">Albums ></span>
+    <ul class="subnav">
+                <li class="">
+                    
+    <a class="" href="../albums/album-object.html">Album Objects</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../albums/save-album.html">Save An Album</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../albums/unsave-album.html">Un-Save An Album</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../albums/get-album.html">Get An Album By ID</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../albums/play-album.html">Play An Album</a>
+                </li>
+    </ul>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <span class="caption-text">Player ></span>
+    <ul class="subnav">
+                <li class="">
+                    
+    <a class="" href="../player/current-info-object.html">Current Playback Info Object</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../player/set-volume.html">Set Playback Volume</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../player/get-current-info.html">Get Info About Current Playback</a>
+                </li>
+    </ul>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <span class="caption-text">Examples ></span>
+    <ul class="subnav">
+                <li class="">
+                    
+    <a class="" href="../examples/examples.html">Misc Examples</a>
+                </li>
+    </ul>
+	    </li>
+          
+        </ul>
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../index.html">Spotify.ahk Docs</a>
+      </nav>
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../index.html">Docs</a> &raquo;</li>
+    
+      
+        
+          <li>Tracks > &raquo;</li>
+        
+      
+    
+    <li>Get A Track By ID</li>
+    <li class="wy-breadcrumbs-aside">
+      
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            <div class="section">
+              
+                <h1 id="getting-a-track-by-id">Getting A Track By ID</h1>
+<p>Wraps around <a href="https://developer.spotify.com/documentation/web-api/reference/tracks/get-track/">this</a> Spotify API endpoint</p>
+<h2 id="how-to-use">How to use</h2>
+<p>After creating a <code>Spotify</code> object, you can use <code>.Track.GetTrack()</code> to get a track by its <a href="https://developer.spotify.com/documentation/web-api/#spotify-uris-and-ids">Spotify ID</a>.</p>
+<p>This will return a <a href="track-object.html">Track Object</a> which can then be used for the methods outlined on <a href="track-object.html">this</a> page.</p>
+<h2 id="example">Example</h2>
+<p>This example will:</p>
+<p>A) Create a <code>Spotify</code> object (which will prompt the user for authorization if it is not already done) </p>
+<p>B) Get a track with <code>.Tracks.GetTrack()</code> by the track's <a href="https://developer.spotify.com/documentation/web-api/#spotify-uris-and-ids">Spotify ID</a></p>
+<p>C) Save the track</p>
+<pre><code>Spoofy := new Spotify()
+GoodSongIMO := Spoofy.Tracks.GetTrack(&quot;4A6eJ3gOmVdD7C69N3DC7K&quot;)
+GoodSongIMO.Save()
+</code></pre>
+              
+            </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="unsave-track.html" class="btn btn-neutral float-right" title="Un-Save A Track">Next <span class="icon icon-circle-arrow-right"></span></a>
+      
+      
+        <a href="save-track.html" class="btn btn-neutral" title="Save A Track"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+    
+  </div>
+
+  Built with <a href="http://www.mkdocs.org">MkDocs</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+      
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" style="cursor: pointer">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+      
+      
+        <span><a href="save-track.html" style="color: #fcfcfc;">&laquo; Previous</a></span>
+      
+      
+        <span style="margin-left: 15px"><a href="unsave-track.html" style="color: #fcfcfc">Next &raquo;</a></span>
+      
+    </span>
+</div>
+    <script>var base_url = '..';</script>
+    <script src="../js/theme.js" defer></script>
+      <script src="../menu.js" defer></script>
+      <script src="../search/main.js" defer></script>
+
+</body>
+</html>

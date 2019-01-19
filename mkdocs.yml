@@ -1,0 +1,34 @@
+site_name: Spotify.ahk Docs
+theme: readthedocs
+extra_css: [style.css]
+extra_javascript: [menu.js]
+nav:
+    - Home: index.md
+    - About: about.md
+    - 'Playlists >':
+        - 'Playlist Objects': 'playlists/playlist-object.md'
+        - 'Create A Playlist': 'playlists/create.md'
+        - 'Add Tracks To A Playlist': 'playlists/add-tracks.md'
+        - 'Remove Tracks From A Playlist': 'playlists/remove-tracks.md'
+        - 'Get A Playlist By ID': 'playlists/get-playlist.md'
+        - 'Delete A Playlist': 'playlists/delete-playlist.md'
+        - 'Play A Playlist': 'playlists/play.md'
+    - 'Tracks >':
+        - 'Track Objects': 'tracks/track-object.md'
+        - 'Save A Track': 'tracks/save-track.md'
+        - 'Get A Track By ID': 'tracks/get-track.md'
+        - 'Un-Save A Track': 'tracks/unsave-track.md'
+        - 'Play A Track': 'tracks/play-track.md'
+    - 'Albums >':
+        - 'Album Objects': 'albums/album-object.md'
+        - 'Save An Album': 'albums/save-album.md'
+        - 'Un-Save An Album': 'albums/unsave-album.md'
+        - 'Get An Album By ID': 'albums/get-album.md'
+        - 'Play An Album': 'albums/play-album.md'
+    - 'Player >':
+        - 'Current Playback Info Object': 'player/current-info-object.md'
+        - 'Set Playback Volume': 'player/set-volume.md'
+        - 'Get Info About Current Playback': 'player/get-current-info.md'
+    - 'Examples >':
+        - 'Misc Examples': 'examples/examples.md'
+use_directory_urls: false
