@@ -1,5 +1,6 @@
 site_name: Spotify.ahk Docs
 theme: readthedocs
+docs_dir: .
 nav:
     - Home: index.md
     - About: about.md
