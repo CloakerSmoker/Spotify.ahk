@@ -1,8 +1,5 @@
 site_name: Spotify.ahk Docs
 theme: readthedocs
-markdown_extensions:
-    - toc:
-        separator: "_"
 nav:
     - Home: index.md
     - About: about.md
