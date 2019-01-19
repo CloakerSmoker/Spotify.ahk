@@ -8,12 +8,12 @@ Note:
 
 An AutoHotkey wrapper for the Spotify web API designed to allow control over Spotify's internal volume slider and provide various other functionality.
 
-Uses a slightly modified version of the AHKhttp library by zhamlin (https://github.com/zhamlin/AHKhttp), the AHKsock library by jleb (https://github.com/jleb/AHKsock) and the Cyrpt libraray by Deo (https://autohotkey.com/board/topic/67155-ahk-l-crypt-ahk-cryptography-class-encryption-hashing/)
+Uses a slightly modified version of the [AHKhttp library by zhamlin](https://github.com/zhamlin/AHKhttp), the [AHKsock library by jleb](https://github.com/jleb/AHKsock) and the [Cyrpt library by Deo](https://autohotkey.com/board/topic/67155-ahk-l-crypt-ahk-cryptography-class-encryption-hashing/)
 
-(Documentation coming soon)
+### Documentation can now be found [here](https://cloakersmoker.github.io/Spotify.ahk/index.html), however it is not complete.
 
-Usage - 
-Create a new Spotify object, and call methods from the various nested classes. Examples can been seen in the Example Hotkeys file.
+#### How to use
+Create a new Spotify object, and call methods from the various nested classes. Examples can been seen in the Example Hotkeys file and throughout the documentation.
 
 When you create a new Spotify object for the first time, a Spotify app authorization page will open in your default browser, and you will be prompted to authorize `Spotify.ahk`.
 While you can choose not to authorize Spotify.ahk, all functionality will be lost without valid authorization. 
