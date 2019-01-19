@@ -1,7 +1,5 @@
 site_name: Spotify.ahk Docs
 theme: readthedocs
-extra_css: [style.css]
-extra_javascript: [menu.js]
 nav:
     - Home: index.md
     - About: about.md
