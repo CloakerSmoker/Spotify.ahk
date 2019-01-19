@@ -8,6 +8,8 @@ class Spotify {
 		this.Artists := new Artists(this)
 		this.Tracks := new Tracks(this)
 		this.Playlists := new Playlists(this)
+		this.CurrentUser := new user(JSON.load(this.Util.CustomCall("GET", "me")), this, true)
+		this.Users := new Users(this)
 	}
 }
 class Util {
@@ -308,19 +310,35 @@ class Library {
 	CheckSavedForTrack(TrackID) {
 		return this.ParentObject.Util.CustomCall("GET", "me/tracks/contains?ids=" . TrackID)
 	}
-	GetSavedAlbums(limit := 50, offset := 0) {
-		Resp := JSON.Load(this.ParentObject.Util.CustomCall("GET", "me/albums?limit=" . limit . "&offset=" . offset))
-		for k, v in Resp["items"] {
-			v := {"album": new album(v["album"], this.ParentObject), "added_at": v["added_at"]}
+	GetSavedAlbums() {
+		resp := JSON.load(this.ParentObject.Util.CustomCall("GET", "me/albums?limit=1"))
+		RetVar := []
+		RetVar[1] := ""
+		RetVar.SetCapacity(resp["total"])
+		loop, % Ceil(resp["total"]/50) {
+			for k, v in JSON.Load(this.ParentObject.Util.CustomCall("GET", "me/albums?limit=50&offset="  . ((A_Index - 1 ) * 50)))["items"] {
+				alb := new album(v["album"], this.ParentObject)
+				alb.added_at := v["added_at"]
+				RetVar.Push(alb)
+			}
 		}
-		return Resp
+		RetVar.RemoveAt(1)
+		return RetVar
 	}
-	GetSavedTracks(limit := 50, offset := 0) {
-		Resp := JSON.Load(this.ParentObject.Util.CustomCall("GET", "me/tracks?limit=" . limit . "&offset=" . offset))
-		for k, v in Resp["items"] {
-			v := {"track": new track(v["track"], this.ParentObject), "added_at": v["added_at"]}
+	GetSavedTracks() {
+		resp := JSON.load(this.ParentObject.Util.CustomCall("GET", "me/tracks?limit=1"))
+		RetVar := []
+		RetVar[1] := ""
+		RetVar.SetCapacity(resp["total"])
+		loop, % Ceil(resp["total"]/50) {
+			for k, v in JSON.Load(this.ParentObject.Util.CustomCall("GET", "me/tracks?limit=50&offset="  . ((A_Index - 1 ) * 50)))["items"] {
+				trk := new track(v["track"], this.ParentObject)
+				trk.added_at := v["added_at"]
+				RetVar.Push(trk)
+			}
 		}
-		return Resp
+		RetVar.RemoveAt(1)
+		return RetVar
 	}
 }
 
@@ -356,8 +374,19 @@ class Playlists {
 	GetPlaylist(PlaylistID) {
 		return new playlist(JSON.Load(this.ParentObject.Util.CustomCall("GET", "playlists/" . PlaylistID)), this.ParentObject)
 	}
-	GetUserPlaylists(UserID := "") {
-		return "a"
+	CreatePlaylist(name, description, public := true) {
+		headers := {1:{1:"Authorization", 2:"Bearer " . this.ParentObject.Util.token}, 2:{1:"Content-Type", 2:"application/json"}}
+		body := "{""name"":""" . name . """, ""description"":""" . description """, ""public"":" . public . "}"
+		MsgBox, % body
+		return new playlist(JSON.Load(this.ParentObject.Util.CustomCall("POST", "users/" . this.ParentObject.CurrentUser.id . "/playlists", headers,, body)), this.ParentObject)
+	}
+}
+class Users {
+	__New(ByRef ParentObject) {
+		this.ParentObject := ParentObject
+	}
+	GetUser(UserID) {
+		return new user(JSON.Load(this.ParentObject.Util.CustomCall("GET", "users/" . UserID)), this.ParentObject)
 	}
 }
 
@@ -369,7 +398,7 @@ class playlist {
 		this.id := this.json["id"]
 		this.name := this.json["name"]
 		this.uri := this.json["uri"]
-		; this.owner := new user(this.json["owner"]) TODO -- User object
+		this.owner := new user(this.json["owner"], this.SpotifyObj)
 		this.public := (this.json["public"] = "null" ? true : (this.json["public"] = "true" ? true : false))
 		this.tracks := []
 		for k, v in this.json["tracks"]["items"] {
@@ -399,6 +428,10 @@ class playlist {
 	Play() {
 		return this.SpotifyObj.Util.CustomCall("PUT", "me/player/play",, false, JSON.Dump({"context_uri": "spotify:playlist:" . this.id}))
 	}
+	Delete() {
+		this.SpotifyObj.Util.CustomCall("DELETE", "https://api.spotify.com/v1/playlists/" . this.id "/followers")
+		return
+	}
 	; Fuck me, all these classes feel so half-baked, what the hell am I even doing?
 }
 
@@ -415,6 +448,11 @@ class track {
 		this.duration := this.json["duration_ms"]
 		this.explicit := this.json["explicit"]
 		this.name := this.json["name"]
+	}
+	IsSaved[] {
+		Get {
+			return (this.SpotifyObj.Util.CustomCall("GET", "me/tracks/contains?ids=" . this.id) ~= "true" ? true : false)
+		}
 	}
 
 	Save() {
@@ -446,6 +484,15 @@ class album {
 			this.tracks.Push(new track(v, this.SpotifyObj))
 		}
 	}
+	;__Get(this, key) {
+	;	this.key := this.SpotifyObj.Albums.GetAlbum(this.id).key
+	;}
+	
+	IsSaved[] {
+		Get {
+			return (this.SpotifyObj.Util.CustomCall("GET", "me/albums/contains?ids=" . this.id) ~= "true" ? true : false)
+		}
+	}
 	
 	Play() {
 		return this.context.SwitchTo()
@@ -457,10 +504,6 @@ class album {
 	
 	UnSave() {
 		return this.SpotifyObj.Util.CustomCall("DELETE", "me/albums?ids=" . this.id)
-	}
-	
-	IsSaved() {
-		return this.SpotifyObj.Util.CustomCall("GET", "me/albums/contains?ids=" . this.id)
 	}
 }
 
@@ -504,15 +547,63 @@ class artist {
 		this.uri := this.json["uri"]
 	}
 	
-	GetAlbums(limit := 50, offset := 0) {
+	GetAlbums() {
+		resp := JSON.load(this.SpotifyObj.Util.CustomCall("GET", "https://api.spotify.com/v1/artists/" . this.id . "/albums?limit=1"))
 		RetVar := []
-		r := this.SpotifyObj.Util.CustomCall("GET", "https://api.spotify.com/v1/artists/" . this.id . "/albums?limit=" . limit . "&offset=" . offset)
-		for k, v in JSON.Load(r)["items"] {
-			RetVar.Push(this.SpotifyObj.Albums.GetAlbum(v["id"]))
+		RetVar[1] := ""
+		RetVar.SetCapacity(resp["total"])
+		loop, % Ceil(resp["total"]/50) {
+			for k, v in JSON.Load(this.SpotifyObj.Util.CustomCall("GET", "artists/" . this.id . "/albums?limit=50&offset="  . ((A_Index - 1 ) * 50)))["items"] {
+				RetVar.Push(new album(v, this.SpotifyObj))
+			}
 		}
+		RetVar.RemoveAt(1)
 		return RetVar
 	}	
 	; Jesus, I have just fucking ruined the global namespace. TODO -- Nest these somewhere
+	; TODO -- Get a plugin that actually makes "TODO --" do something
+}
+class user {
+	__New(Userjson, ByRef Parent := "", isCur := false) {
+		this.SpotifyObj := Parent
+		this.json := Userjson
+		this.isCur := isCur
+		this.birthdate := this.json["birthdate"]
+		this.name := this.json["display_name"]
+		this.email := this.json["email"]
+		this.id := this.json["id"]
+		this.subscriptionLevel := this.json["product"]
+	}
+	GetPlaylists() {
+		; I don't know why, but I couldn't return the array of playlists generated by this function properly, so ignore the stuff with RetVer
+		; Maybe some limitation on pushing large objects onto an array
+		resp := JSON.load(this.SpotifyObj.Util.CustomCall("GET", "users/" . this.id . "/playlists?limit=1"))
+		RetVar := []
+		RetVar[1] := ""
+		RetVar.SetCapacity(resp["total"])
+		loop, % Ceil(resp["total"]/50) {
+			for k, v in JSON.load(this.SpotifyObj.Util.CustomCall("GET", "users/" . this.id . "/playlists?limit=50&offset=" . ((A_Index - 1 ) * 50)))["items"] {
+				RetVar.Push(new playlist(v, this.SpotifyObj))
+			}
+		}
+		RetVar.RemoveAt(1)
+		return RetVar
+	}
+	GetTop(ArtistsOrTracks := "tracks") {
+		if !(this.isCur) {
+			return ""
+		}
+		RetVar := []
+		for k, v in JSON.load(this.SpotifyObj.Util.CustomCall("GET", "me/top/" . ArtistsOrTracks))["items"] {
+			if (ArtistsOrTracks = "artists") {
+				RetVar.Push(new artist(v, this.SpotifyObj))
+			}
+			else {
+				RetVar.Push(new track(v, this.SpotifyObj))
+			}
+		}
+		return RetVar
+	}
 }
 
 #Include <AHKsock>
