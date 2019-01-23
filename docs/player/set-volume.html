@@ -244,7 +244,7 @@
 <p>C) Increment the current volume percentage by 10</p>
 <p>D) Set the volume percentage to the new percentage</p>
 <pre><code>Spoofy := new Spotify()
-CurrentVolume := Spoofy.Player.GetCurrentPlaybackInfo().progress_ms
+CurrentVolume := Spoofy.Player.GetCurrentPlaybackInfo().volume_percent
 CurrentVolume += 10
 Spoofy.Player.SetVolume(CurrentVolume)
 </code></pre>
