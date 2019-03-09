@@ -3,7 +3,7 @@ global VolumePercentage
 global ShuffleMode
 global RepeatMode := 0
 spoofy := new Spotify
-RegexMatch(spoofy.Player.GetCurrentPlaybackInfo(), "[0-9]{2}\n", VolumePercentage) ; Grab the volume of the player on startup
+VolumePercentage := spoofy.Player.GetCurrentPlaybackInfo().Device.Volume
 return
 
 F1::
