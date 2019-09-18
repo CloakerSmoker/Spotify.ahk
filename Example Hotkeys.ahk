@@ -1,27 +1,29 @@
-﻿#Include Spotify.ahk
-global VolumePercentage
-global ShuffleMode
-global RepeatMode := 0
-spoofy := new Spotify
-VolumePercentage := spoofy.Player.GetCurrentPlaybackInfo().Device.Volume
+#Include %A_ScriptDir%
+#Include Spotify.ahk
+
+Spotify.Auth()
+
+VolumePercentage := Spotify.Player.GetCurrentPlaybackInfo().Device.Volume
+ShuffleMode := 0
+RepeatMode := 0
 return
 
 F1::
 VolumePercentage--
-spoofy.Player.SetVolume(VolumePercentage) ; Decrement the volume percentage and set the player to the new volume percentage
+Spotify.Player.SetVolume(VolumePercentage) ; Decrement the volume percentage and set the player to the new volume percentage
 return
 
 F2::
 VolumePercentage++
-spoofy.Player.SetVolume(VolumePercentage) ; Increment the volume percentage and set the player to the new volume percentage
+Spotify.Player.SetVolume(VolumePercentage) ; Increment the volume percentage and set the player to the new volume percentage
 return 
 
 F3::
 ShuffleMode := !ShuffleMode
-spoofy.Player.SetShuffle(ShuffleMode) ; Swap the shuffle mode of the player
+Spotify.Player.SetShuffle(ShuffleMode) ; Swap the shuffle mode of the player
 return 
 
 F4::
-RepeatMode := RepeatMode + (RepeatMode = 0 ? 1 : (RepeatMode = 1 ? 1 : (RepeatMode = 2 ? 1 : -2)))
-spoofy.Player.SetRepeatMode(RepeatMode) ; Cycle through the three repeat modes (1-2, 2-3, 3-1)
+NewMode := ["off", "context", "track"][Mod(++RepeatMode, 3) + 1]
+Spotify.Player.SetRepeatMode(NewMode) ; Cycle through the three repeat modes (1-2, 2-3, 3-1)
 return 

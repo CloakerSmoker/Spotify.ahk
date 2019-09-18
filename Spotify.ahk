@@ -268,7 +268,7 @@ class Spotify {
 			return Spotify.Util.CustomCall("PUT", "me/player/volume?volume_percent=" Volume)
 		}
 		GetCurrentPlaybackInfo() {
-			return this.GetPartialPlaybackInfo()
+			return this.GetFullPlaybackInfo()
 		}
 		GetPartialPlaybackInfo() {
 			Resp := JSON.load(Spotify.Util.CustomCall("GET", "me/player/currently-playing"))
