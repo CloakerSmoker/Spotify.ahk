@@ -59,9 +59,8 @@
         <ul>
         
             <li><a class="toctree-l3" href="#requirements">Requirements</a></li>
-        
-            <li><a class="toctree-l3" href="#click-this-link-to-go-to-the-rewrite-docs">Click this link to go to the rewrite docs</a></li>
-        
+            <li><a class="toctree-l3" href="#click-this-link-to-go-to-the-legacy-docs">Click this link to go to the legacy docs</a></li>
+			<li><a class="toctree-l3" href="#changes">Changes</a></li>
         </ul>
     
 
@@ -162,7 +161,7 @@
     </ul>
 	    </li>
           
-            <li class="toctree-l1">
+<li class="toctree-l1">
 		
     <span class="caption-text">Player ></span>
     <ul class="subnav">
@@ -179,18 +178,25 @@
     <a class="" href="rewrite-docs/player/get-current-info.html">Get Info About Current Playback</a>
                 </li>
     </ul>
-	    </li>
+</li>
           
-            <li class="toctree-l1">
-		
+<li class="toctree-l1">		
     <span class="caption-text">Examples ></span>
     <ul class="subnav">
-                <li class="">
-                    
-    <a class="" href="rewrite-docs/examples/examples.html">Misc Examples</a>
-                </li>
+        <li class="">
+			<a class="" href="rewrite-docs/examples/examples.html">Misc Examples</a>
+        </li>
     </ul>
-	    </li>
+</li>
+
+<li class="toctree-l1">		
+    <span class="caption-text">Searching ></span>
+    <ul class="subnav">
+        <li class="">
+			<a class="" href="rewrite-docs/search/for.html">How To</a>
+        </li>
+    </ul>
+</li>
           
         </ul>
       </div>
@@ -233,7 +239,31 @@
 <li>Theorically, nothing else. All libraries Spotify.ahk requires are packaged with the download</li>
 </ul>
 <h2 id="click-this-link-to-go-to-the-legacy-docs">Click <a href="../index.html">this link</a> to go to the legacy docs</h2>
-              
+<h2 id="changes"> Changes </h2>
+<ul>
+	<li>
+		There is now only one <code>Spotify</code> object, which is static. 
+	</li>
+	<li>
+		Spotify auth is now done with <code>Spotify.Auth()</code> instead of creating a new <code>Spotify</code> object.
+	</li>
+	<li>
+		HTTP requests are now cached whenever possible
+	</li>
+	<li>
+		All old <code>Spotify.*</code> classes are now static, and function using raw Spotify URIs. 
+	</li>
+	<li> 
+		All Spotify objects (<code>Spotify.Track</code> for example) now use the underlying <code>Spotify.*</code> class instead of making API calls themselves.
+	</li>
+	<li>
+		All Spotify objects now extend the <code>SpotifyAPIBaseClass</code> class, which provides a simple way to translate JSON API returned objects into functional AHK objects (with methods)
+	</li>
+	<li>
+		All Spotify objects can now be validated before use with the <code>IsValid(SpotifyObject)</code> and <code>IsLowValid(SpotifyObject)</code> functions, which ensure that all properties of the object are valid.
+		When either of these functions return false, the <code>.Refresh()</code> method of the object that failed the test can be used to get a new (hopefully valid) version of the object from the Spotify API.
+	</li>
+</ul>
             </div>
           </div>
           <footer>
