@@ -119,6 +119,8 @@
         
             <li><a class="toctree-l4" href="#properties">Properties</a></li>
         
+            <li><a class="toctree-l4" href="#pseudo-properties">Pseudo Properties</a></li>
+        
             <li><a class="toctree-l4" href="#methods">Methods</a></li>
         
         </ul>
@@ -274,7 +276,82 @@
 </tr>
 <tr>
 <td>artists</td>
-<td>An array of <a href="/artists/artist-object.md">Artist Objects</a> that represents the Artist(s) of the track</td>
+<td>An array of <a href="../artists/artist-object.md">Artist Objects</a> that represents the Artist(s) of the track</td>
+</tr>
+</tbody>
+</table>
+<h2 id="pseudo-properties">Pseudo Properties</h2>
+<table>
+<thead>
+<tr>
+<th><strong>Key</strong></th>
+<th><strong>Value description</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>available_markets</td>
+<td>An array of country codes that the track can be played in</td>
+</tr>
+<tr>
+<td>disc_number</td>
+<td>The disc number the track is on (defaults to 1 when an album has no specific discs)</td>
+</tr>
+<tr>
+<td>duration_ms</td>
+<td>How long the track is in milliseconds</td>
+</tr>
+<tr>
+<td>duration</td>
+<td>Alias for <code>duration_ms</code></td>
+</tr>
+<tr>
+<td>explicit</td>
+<td>If the track has explicit lyrics or not (false = unknown)</td>
+</tr>
+<tr>
+<td>external_ids</td>
+<td>A <a href="https://developer.spotify.com/documentation/web-api/reference/object-model/#external-id-object">External ID</a> object containing other IDs of the track</td>
+</tr>
+<tr>
+<td>external_urls</td>
+<td>A <a href="https://developer.spotify.com/documentation/web-api/reference/object-model/#external-url-object">External URL</a> object containing external URLs for the track</td>
+</tr>
+<tr>
+<td>href</td>
+<td>A web API endpoint that can be used to get a full version of the track if needed</td>
+</tr>
+<tr>
+<td>id</td>
+<td>The <a href="https://developer.spotify.com/documentation/web-api/#spotify-uris-and-ids">Spotify ID</a> of the track</td>
+</tr>
+<tr>
+<td>name</td>
+<td>The name of the track</td>
+</tr>
+<tr>
+<td>popularity</td>
+<td>A 0-100 scale of how popular Spotify thinks the track is</td>
+</tr>
+<tr>
+<td>preview_url</td>
+<td>A link to a 30 second <code>.mp3</code> preview of the track (can be null)</td>
+</tr>
+<tr>
+<td>track_number</td>
+<td>The number of the track on disc, should be used with <code>disc_number</code></td>
+</tr>
+<tr>
+<td>type</td>
+<td>The string "track"</td>
+</tr>
+<tr>
+<td>uri</td>
+<td>The <a href="https://developer.spotify.com/documentation/web-api/#spotify-uris-and-ids">Spotify URI</a> of the track</td>
+</tr>
+<tr>
+<td>is_local</td>
+<td>If the track is a local track or not</td>
 </tr>
 </tbody>
 </table>
