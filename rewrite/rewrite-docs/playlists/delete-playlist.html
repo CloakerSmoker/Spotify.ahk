@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  
+  <link rel="shortcut icon" href="../../img/favicon.ico">
+  <title>Delete A Playlist - Spotify.ahk Docs</title>
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+  <link rel="stylesheet" href="../../css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../css/theme_extra.css" type="text/css" />
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css">
+  <link href="../../style.css" rel="stylesheet">
+  
+  <script>
+    // Current page data
+    var mkdocs_page_name = "Delete A Playlist";
+    var mkdocs_page_input_path = "rewrite-docs\\playlists\\delete-playlist.md";
+    var mkdocs_page_url = null;
+  </script>
+  
+  <script src="../../js/jquery-2.1.1.min.js" defer></script>
+  <script src="../../js/modernizr-2.8.3.min.js" defer></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script> 
+  
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+      <div class="wy-side-nav-search">
+        <a href="../../index.html" class="icon icon-home"> Spotify.ahk Docs</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+	<ul class="current">
+	  
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../../index.html">Home</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../../about.html">About</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <span class="caption-text">Playlists ></span>
+    <ul class="subnav">
+                <li class="">
+                    
+    <a class="" href="playlist-object.html">Playlist Objects</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="create.html">Create A Playlist</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="add-tracks.html">Add Tracks To A Playlist</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="remove-tracks.html">Remove Tracks From A Playlist</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="get-playlist.html">Get A Playlist By ID</a>
+                </li>
+                <li class=" current">
+                    
+    <a class="current" href="delete-playlist.html">Delete A Playlist</a>
+    <ul class="subnav">
+            
+    <li class="toctree-l3"><a href="#deleting-a-playlist">Deleting A Playlist</a></li>
+    
+        <ul>
+        
+            <li><a class="toctree-l4" href="#note">Note</a></li>
+        
+            <li><a class="toctree-l4" href="#how-to-use">How to use</a></li>
+        
+            <li><a class="toctree-l4" href="#example">Example</a></li>
+        
+        </ul>
+    
+
+    </ul>
+                </li>
+                <li class="">
+                    
+    <a class="" href="play.html">Play A Playlist</a>
+                </li>
+    </ul>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <span class="caption-text">Tracks ></span>
+    <ul class="subnav">
+                <li class="">
+                    
+    <a class="" href="../tracks/track-object.html">Track Objects</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../tracks/save-track.html">Save A Track</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../tracks/get-track.html">Get A Track By ID</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../tracks/unsave-track.html">Un-Save A Track</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../tracks/play-track.html">Play A Track</a>
+                </li>
+    </ul>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <span class="caption-text">Albums ></span>
+    <ul class="subnav">
+                <li class="">
+                    
+    <a class="" href="../albums/album-object.html">Album Objects</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../albums/save-album.html">Save An Album</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../albums/unsave-album.html">Un-Save An Album</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../albums/get-album.html">Get An Album By ID</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../albums/play-album.html">Play An Album</a>
+                </li>
+    </ul>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <span class="caption-text">Player ></span>
+    <ul class="subnav">
+                <li class="">
+                    
+    <a class="" href="../player/current-info-object.md">Current Playback Info Object</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../player/set-volume.html">Set Playback Volume</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../player/get-current-info.html">Get Info About Current Playback</a>
+                </li>
+    </ul>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <span class="caption-text">Examples ></span>
+    <ul class="subnav">
+                <li class="">
+                    
+    <a class="" href="../examples/examples.html">Misc Examples</a>
+                </li>
+    </ul>
+	    </li>
+          
+        </ul>
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../../index.html">Spotify.ahk Docs</a>
+      </nav>
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../index.html">Docs</a> &raquo;</li>
+    
+      
+        
+          <li>Playlists > &raquo;</li>
+        
+      
+    
+    <li>Delete A Playlist</li>
+    <li class="wy-breadcrumbs-aside">
+      
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            <div class="section">
+              
+                <h1 id="deleting-a-playlist">Deleting A Playlist</h1>
+<p>Wraps around <a href="https://developer.spotify.com/documentation/web-api/reference/follow/unfollow-playlist/">this</a> Spotify API endpoint</p>
+<h3 id="note">Note</h3>
+<p>It is not currently possible to delete a playlist entirely on Spotify, the best alternative is to unfollow it, which is the same as "deleting" a playlist through the web players or desktop app.</p>
+<p>Because of this, this method just unfollows a playlist.</p>
+<h2 id="how-to-use">How to use</h2>
+<p>After getting a playlist through either <a href="get-playlist.html"><code>Spotify.Playlists.GetPlaylist()</code></a> or creating a new playlist with <a href="create.html"><code>Spotify.Playlists.CreatePlaylist()</code></a>, the <code>.Delete()</code> method of the playlist object can be called to "delete" the playlist.</p>
+<h2 id="example">Example</h2>
+<p>This example will:</p>
+<p>A) Create a new (empty and private) playlist named <code>Test 123</code> with the description <code>This is an example playlist made by Spotify.ahk</code> by calling <a href="create.html"><code>Spotify.Playlists.CreatePlaylist()</code></a></p>
+<p>B) Get 3 track objects with calls to <a href="../tracks/get-track.html"><code>Spotify.Tracks.GetTrack()</code></a>.</p>
+<p>C) Add 5 tracks to the playlist, 3 copies of Ocean Man and the two other tracks, all using the <a href="add-tracks.html"><code>.AddTrack()</code> method</a>.</p>
+<p>D) Wait 20 seconds, then delete the playlist</p>
+<pre><code>NewPlaylist := Spotify.Playlists.CreatePlaylist(&quot;Test 1234&quot;, false, &quot;This is a Spotify.ahk test playlist&quot;)
+
+FirstTrack := Spotify.Tracks.GetTrack(&quot;5ogtb9bGQoH8CjZNxmbNHR&quot;)
+SecondTrack := Spotify.Tracks.GetTrack(&quot;2yYSMsrFJ6m7ePtLxQZZBF&quot;)
+OceanMan := Spotify.Tracks.GetTrack(&quot;6M14BiCN00nOsba4JaYsHW&quot;)
+
+NewPlaylist.AddTrack(FirstTrack)
+NewPlaylist.AddTrack(SecondTrack)
+
+loop, 3 {
+    NewPlaylist.AddTrack(OceanMan)
+}
+
+Sleep, 20000
+NewPlaylist.Delete()
+</code></pre>
+
+<p>An alternative way to do this without getting any full track objects is the <a href="static-playlists.html"><code>Spotify.Playlists.PlaylistAddTrack()</code></a> method and the <a href="static-playlists.html"><code>Spotify.Playlists.DeletePlaylist()</code></a> method, which both a playlist ID and track ID, which would save us some web API calls.</p>
+<pre><code>NewPlaylist := Spotify.Playlists.CreatePlaylist(&quot;Test 1234&quot;, false, &quot;This is a Spotify.ahk test playlist&quot;)
+
+Spotify.Playlists.PlaylistAddTrack(NewPlaylist.ID, &quot;5ogtb9bGQoH8CjZNxmbNHR&quot;)
+Spotify.Playlists.PlaylistAddTrack(NewPlaylist.ID, &quot;2yYSMsrFJ6m7ePtLxQZZBF&quot;)
+
+loop, 3 {
+    Spotify.Playlists.PlaylistAddTrack(NewPlaylist.ID, &quot;6M14BiCN00nOsba4JaYsHW&quot;)
+}
+
+Sleep, 20000
+Spotify.Playlists.DeletePlaylist(NewPlaylist.ID)
+</code></pre>
+              
+            </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="play.html" class="btn btn-neutral float-right" title="Play A Playlist">Next <span class="icon icon-circle-arrow-right"></span></a>
+      
+      
+        <a href="get-playlist.html" class="btn btn-neutral" title="Get A Playlist By ID"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+    
+  </div>
+
+  Built with <a href="http://www.mkdocs.org">MkDocs</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+      
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" style="cursor: pointer">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+      
+      
+        <span><a href="get-playlist.html" style="color: #fcfcfc;">&laquo; Previous</a></span>
+      
+      
+        <span style="margin-left: 15px"><a href="play.html" style="color: #fcfcfc">Next &raquo;</a></span>
+      
+    </span>
+</div>
+    <script>var base_url = '../..';</script>
+    <script src="../../js/theme.js" defer></script>
+      <script src="../../menu.js" defer></script>
+      <script src="../../search/main.js" defer></script>
+
+</body>
+</html>

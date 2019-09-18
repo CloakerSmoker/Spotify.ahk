@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  
+  <link rel="shortcut icon" href="../../img/favicon.ico">
+  <title>The `Spotify.Player` static class - Spotify.ahk Docs</title>
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+  <link rel="stylesheet" href="../../css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../css/theme_extra.css" type="text/css" />
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css">
+  <link href="../../style.css" rel="stylesheet">
+  
+  <script>
+    // Current page data
+    var mkdocs_page_name = "The `Spotify.Player` static class";
+    var mkdocs_page_input_path = "rewrite-docs\\player\\static-player.md";
+    var mkdocs_page_url = null;
+  </script>
+  
+  <script src="../../js/jquery-2.1.1.min.js" defer></script>
+  <script src="../../js/modernizr-2.8.3.min.js" defer></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script> 
+  
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+      <div class="wy-side-nav-search">
+        <a href="../../index.html" class="icon icon-home"> Spotify.ahk Docs</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+	<ul class="current">
+	  
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../../index.html">Home</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../../about.html">About</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <span class="caption-text">Playlists ></span>
+    <ul class="subnav">
+                <li class="">
+                    
+    <a class="" href="../playlists/playlist-object.html">Playlist Objects</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../playlists/create.html">Create A Playlist</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../playlists/add-tracks.html">Add Tracks To A Playlist</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../playlists/remove-tracks.html">Remove Tracks From A Playlist</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../playlists/get-playlist.html">Get A Playlist By ID</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../playlists/delete-playlist.html">Delete A Playlist</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../playlists/play.html">Play A Playlist</a>
+                </li>
+    </ul>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <span class="caption-text">Tracks ></span>
+    <ul class="subnav">
+                <li class="">
+                    
+    <a class="" href="../tracks/track-object.html">Track Objects</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../tracks/save-track.html">Save A Track</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../tracks/get-track.html">Get A Track By ID</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../tracks/unsave-track.html">Un-Save A Track</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../tracks/play-track.html">Play A Track</a>
+                </li>
+    </ul>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <span class="caption-text">Albums ></span>
+    <ul class="subnav">
+                <li class="">
+                    
+    <a class="" href="../albums/album-object.html">Album Objects</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../albums/save-album.html">Save An Album</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../albums/unsave-album.html">Un-Save An Album</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../albums/get-album.html">Get An Album By ID</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../albums/play-album.html">Play An Album</a>
+                </li>
+    </ul>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <span class="caption-text">Player ></span>
+    <ul class="subnav">
+                <li class="">
+                    
+    <a class="" href="current-info-object.md">Current Playback Info Object</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="set-volume.html">Set Playback Volume</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="get-current-info.html">Get Info About Current Playback</a>
+                </li>
+    </ul>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <span class="caption-text">Examples ></span>
+    <ul class="subnav">
+                <li class="">
+                    
+    <a class="" href="../examples/examples.html">Misc Examples</a>
+                </li>
+    </ul>
+	    </li>
+          
+        </ul>
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../../index.html">Spotify.ahk Docs</a>
+      </nav>
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../index.html">Docs</a> &raquo;</li>
+    
+      
+    
+    <li>The `Spotify.Player` static class</li>
+    <li class="wy-breadcrumbs-aside">
+      
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            <div class="section">
+              
+                <h1 id="the-spotifyplayer-static-class">The <code>Spotify.Player</code> static class</h1>
+<p>Does not wrap around any specific API object/endpoint.</p>
+<p>Instead, the <code>Spotify.Player</code> class provides methods that accept raw Spotify IDs and call their web API versions, alongside functions that wrap around Spotify Player API endpoints.</p>
+<h3 id="note">Note</h3>
+<p>This class is 100% static, and <code>new Spotify.Player()</code> will never be valid, and is very likely to break things.</p>
+<h2 id="methods">Methods</h2>
+<table>
+<thead>
+<tr>
+<th>Method Name</th>
+<th>Parameters</th>
+<th>Return value</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>SaveCurrentlyPlaying</code></td>
+<td>None</td>
+<td>None</td>
+<td>Gets the currently playing track, and saves it to your <code>Liked Songs</code></td>
+</tr>
+<tr>
+<td><code>UnSaveCurrentlyPlaying</code></td>
+<td>None</td>
+<td>None</td>
+<td>Gets the currenty playing track, and removes it from your <code>Liked Songs</code></td>
+</tr>
+<tr>
+<td><code>SetVolume</code></td>
+<td><code>Volume</code> (0-100)</td>
+<td>None</td>
+<td>Sets the playback volume on the current device to the number passed, clamped to 0-100</td>
+</tr>
+<tr>
+<td><code>GetCurrentPlaybackInfo</code></td>
+<td>None</td>
+<td>A <a href="https://developer.spotify.com/documentation/web-api/reference/player/get-the-users-currently-playing-track/">Currently Playing Object</a></td>
+<td>Returns info about what's currently playing (This DOES NOT include the device playback is happening on)</td>
+</tr>
+<tr>
+<td><code>GetFullPlaybackInfo</code></td>
+<td>None</td>
+<td>A <a href="https://developer.spotify.com/documentation/web-api/reference/player/get-information-about-the-users-current-playback/">Currently Playing Context Object</a></td>
+<td>Returns even more info about current playback, including the device that playback is happening on</td>
+</tr>
+<tr>
+<td><code>GetCurrentTrack</code></td>
+<td>None</td>
+<td>A <a href="../tracks/track-object.html">track object</a></td>
+<td>Returns just the currently playing track, with no extra info.</td>
+</tr>
+<tr>
+<td><code>GetDeviceList</code></td>
+<td>None</td>
+<td>An array of <a href="../devices/device-object.md">device objects</a></td>
+<td>Returns a list of all devices available for playback.</td>
+</tr>
+<tr>
+<td><code>GetRecentlyPlayed</code></td>
+<td>None</td>
+<td>An array of <a href="https://developer.spotify.com/documentation/web-api/reference/player/get-recently-played/">play history objects</a></td>
+<td>Returns a list of tracks, and context that have been recently played</td>
+</tr>
+<tr>
+<td><code>SeekTime</code></td>
+<td><code>TimeInMS</code></td>
+<td>None</td>
+<td>Seeks playback on the active device to the given time in MS</td>
+</tr>
+<tr>
+<td><code>SetRepeatMode</code></td>
+<td><code>NewMode</code></td>
+<td>None</td>
+<td>Takes either <code>Track</code>, <code>Context</code> or <code>Off</code>, and sets the currently active player's repeat mode to that value (Context = on, but without the little 1 on the repeat button)</td>
+</tr>
+<tr>
+<td><code>SetShuffle</code></td>
+<td><code>NewMode</code></td>
+<td>None</td>
+<td>Takes a true or false value, and sets shuffle on for true, and off for false.</td>
+</tr>
+<tr>
+<td><code>NextTrack</code></td>
+<td>None</td>
+<td>None</td>
+<td>Skips to the next track.</td>
+</tr>
+<tr>
+<td><code>PrevTrack</code></td>
+<td>None</td>
+<td>None</td>
+<td>Skips back a track.</td>
+</tr>
+<tr>
+<td><code>PausePlayback</code></td>
+<td>None</td>
+<td>None</td>
+<td>Pauses playback on the active device.</td>
+</tr>
+<tr>
+<td><code>ResumePlayback</code></td>
+<td>None</td>
+<td>None</td>
+<td>Resumes playback on the active device.</td>
+</tr>
+<tr>
+<td><code>PlayPause</code></td>
+<td>None</td>
+<td>None</td>
+<td>Toggles playback being from being paused to resumed, and from resumed to paused</td>
+</tr>
+<tr>
+<td><code>SwitchToDevice</code></td>
+<td><code>DeviceID</code></td>
+<td>None</td>
+<td>Takes the ID of a <a href="../devices/device-object.md">device</a>, and switches playback to the device with the given ID.</td>
+</tr>
+<tr>
+<td><code>SwitchToContext</code></td>
+<td><code>ContextType</code>, <code>ContextID</code></td>
+<td>None</td>
+<td>Takes the type, and ID of a context (a playlist/album/artist), and plays that context on the active device.</td>
+</tr>
+<tr>
+<td><code>PlayTrack</code></td>
+<td><code>TrackID</code></td>
+<td>None</td>
+<td>Takes a track ID, and plays the track with that ID on the active device.</td>
+</tr>
+<tr>
+<td><code>PlayPlaylist</code></td>
+<td><code>PlaylistID</code></td>
+<td>None</td>
+<td>Takes a playlist ID, and plays the playlist with that ID on the active device.</td>
+</tr>
+<tr>
+<td><code>PlayAlbum</code></td>
+<td><code>AlbumID</code></td>
+<td>None</td>
+<td>Takes a album ID, and plays the album with that ID on the active device.</td>
+</tr>
+</tbody>
+</table>
+              
+            </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+    
+  </div>
+
+  Built with <a href="http://www.mkdocs.org">MkDocs</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+      
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" style="cursor: pointer">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+      
+      
+      
+    </span>
+</div>
+    <script>var base_url = '../..';</script>
+    <script src="../../js/theme.js" defer></script>
+      <script src="../../menu.js" defer></script>
+      <script src="../../search/main.js" defer></script>
+
+</body>
+</html>
