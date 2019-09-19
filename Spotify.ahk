@@ -1,16 +1,17 @@
 #MaxThreads 2
-;S := new Spotify()
+;Spotify.Auth()
 ;MsgBox, % JSON.Dump(S.CurrentUser.Playlists)
 ;MsgBox, % JSON.Dump(S.Playlists.GetPlaylist("spotify:playlist:37i9dQZF1EjrwJMNfC5pGN").Tracks)
-;MsgBox, % JSON.Dump(S.Playlists.GetPlaylist("37i9dQZF1EjrwJMNfC5pGN").Tracks)
+;z::
+;MsgBox, % Spotify.Playlists.GetPlaylist("37i9dQZF1EjrwJMNfC5pGN").Name
+;return
 ;MsgBox, % JSON.Dump(S.Albums.GetAlbum("spotify:album:6MdXxYdygE9DSD4WHDKmFV").Tracks)
 
 class Spotify {
 	Auth() {
 		Spotify.Util.StartUp() ; Do the auth process
 		
-		
-		this.S_HTTP_ARCHIVE := HTTP_CACHE_FOREVER | HTTP_CACHE_IGNORE_HEADERS
+		Spotify.S_HTTP_ARCHIVE := HTTP.CACHE_FOREVER | HTTP.CACHE_IGNORE_HEADERS
 		Spotify.CurrentUser := new Spotify.User(JSON.load(Spotify.Util.CustomCall("GET", "me")))
 		Spotify.CurrentUser.IsCurrentUser := true
 	}
@@ -162,7 +163,7 @@ class Spotify {
 			if (HeaderMap = -1) {
 				; allows for params to be passed as an object, since this function has way too many
 				for k, v in NoTimeOut {
-					MsgBox, % "Set " k " := " v
+					;MsgBox, % "Set " k " := " v
 					%k% := v ; set that param to be the version passed
 				}
 				
@@ -175,7 +176,7 @@ class Spotify {
 					NoTimeOut := false
 				}
 				
-				MsgBox, % Method "`n" URL "`n" HeaderMap "`n" NoTimeOut "`n" BodyData "`n" NoError "`n" CacheMode
+				;MsgBox, % Method "`n" URL "`n" HeaderMap "`n" NoTimeOut "`n" BodyData "`n" NoError "`n" CacheMode
 			}
 			
 			if !(NoTimeOut) {
@@ -437,7 +438,7 @@ class Spotify {
 	
 	class Playlists {
 		GetPlaylist(PlaylistID) {
-			return new Spotify.Playlist(JSON.Load(Spotify.Util.CustomCall("GET", "playlists/" PlaylistID)))
+			return new Spotify.Playlist(JSON.Load(Spotify.Util.CustomCall("GET", "playlists/" PlaylistID, -1, {"CacheMode": Spotify.S_HTTP_ARCHIVE})))
 		}
 		PlaylistGetTrackCount(PlaylistID) {
 			PlaylistCounter := JSON.Load(Spotify.Util.CustomCall("GET", "playlists/" PlaylistID "/tracks?limit=1"))
@@ -974,9 +975,6 @@ IsLowValid(Object) {
 ; EDIT HTTP.Request() TO JUST MAKE THE REQUEST
 ; AND YOU CAN REMOVE EVERYTHING ELSE
 
-global HTTP_CACHE_FOREVER := 0x1
-global HTTP_CACHE_IGNORE_HEADERS := 0x2
-
 class HTTP {
 	static _ := HTTP.Init()
 	
@@ -984,6 +982,9 @@ class HTTP {
 	; when an HTTP response contains a caching-related header
 	
 	Init() {
+		HTTP.CACHE_FOREVER := 0x1
+		HTTP.CACHE_IGNORE_HEADERS := 0x2
+	
 		; store our COM object that actually does the requests
 		this.WinHTTP := ComObjCreate("WinHttp.WinHttpRequest.5.1")
 
@@ -1010,7 +1011,7 @@ class HTTP {
 	
 	SetCacheFile(FilePath) {
 		if (FileExist(FilePath)) {
-			MsgBox, % "Cache Exists"
+			;MsgBox, % "Cache Exists"
 			; if the cache file does exist
 			BadJSON := false
 			
@@ -1022,13 +1023,13 @@ class HTTP {
 			}
 			
 			if (!BadJSON && LoadedCache.HasKey("GET")) {
-				MsgBox, % "Cache is JSON"
+				;MsgBox, % "Cache is JSON"
 				; and the loaded file is a proper JSON version of a cach
 				this.Cache := LoadedCache
 				; then we use the loaded cache instead
 			}
 			else {
-				MsgBox, % "Cache is not JSON"
+				;MsgBox, % "Cache is not JSON"
 				; else the JSON in the file isn't valid, so we'll write our either A) Blank cache, or B) a populated cache
 				; it doesn't matter which, since we only load this file on startup
 				CacheFile := FileOpen(FilePath, "w")
@@ -1038,7 +1039,7 @@ class HTTP {
 			}
 		}
 		else if (IsObject(CreatedFile := FileOpen(FilePath, "w"))) {
-			MsgBox, % "Cache did not exist"
+			;MsgBox, % "Cache did not exist"
 			CreatedFile.Write(JSON.Dump(this.Cache))
 			CreatedFile.Close()
 		}
@@ -1115,12 +1116,12 @@ class HTTP {
 				this.Cache[Method][k] := ""
 			}
 			else if (CachedRequest.URL = URL && CachedRequest.Body = Body) {
-				if ((CacheMode & HTTP_CACHE_IGNORE_HEADERS) || (JSON.Dump(CachedRequest.Headers) = JSON.Dump(Headers))) {
-					MsgBox, % "Cache hit on " URL "`nwith mode: " CacheMode "`n" (CacheMode & HTTP_CACHE_IGNORE_HEADERS)
+				if ((CacheMode & HTTP.CACHE_IGNORE_HEADERS) || (JSON.Dump(CachedRequest.Headers) = JSON.Dump(Headers))) {
+					ToolTip, % "Cache hit on " URL "`nwith mode: " CacheMode
 		
-					RequestStream := FileOpen(this.CacheFile ":" CachedRequest.URL, "r")
-					MsgBox, % IsObject(RequestStream) "`n" RequestStream.Length
+					RequestStream := FileOpen(this.CacheFile ".bin:" this.Encode(CachedRequest.URL), "rw")
 					Text := RequestStream.Read()
+					;MsgBox, % IsObject(RequestStream) "`n" RequestStream.Length "`n" Text
 					RequestStream.Close()
 		
 					return {"Headers": CachedRequest.Response.Headers, "Status": CachedRequest.Response.Status, "Text": Text}
@@ -1128,15 +1129,84 @@ class HTTP {
 				
 				; if the cached request is valid, and matches the params for the request we are looking up now
 				; return the cached response to the cached requests
-				; also, if we are supposed to ignore the headers for this request, short circuit on (CacheMode & HTTP_CACHE_IGNORE_HEADERS) to avoid the check
+				; also, if we are supposed to ignore the headers for this request, short circuit on (CacheMode & HTTP.CACHE_IGNORE_HEADERS) to avoid the check
 			}
 		}
+		
 		return false
+	}
+	Encode(String) {
+		Len := StrLen(String)
+		VarSetCapacity(pString, Len, 0)
+		StrPut(String, &pString, Len, "UTF-8")
+		return SubStr(this.Hash(&pString, Len), 1, 10)
+	}
+	Hash(pData, DataSize) {
+		static PROV_RSA_FULL := 1
+		static PROV_RSA_AES := 0x00000018
+		static CRYPT_VERIFYCONTEXT := 0xF0000000
+		static CALG_MD5	:= 0x00008003
+		static HP_HASHVAL := 0x2
+		
+		VarSetCapacity(pCSPHandle, 8, 0)
+		VarSetCapacity(RandomBuffer, 8, 0)
+		
+		DllCall("advapi32.dll\CryptAcquireContextA", "Ptr", &pCSPHandle, "UInt", 0, "UInt", 0, "UInt", PROV_RSA_FULL, "UInt", CRYPT_VERIFYCONTEXT)
+		CSPHandle := NumGet(&pCSPHandle, 0, "UInt64")
+		;MsgBox, % "CSP: " CSPHandle
+		
+		VarSetCapacity(pHashHandle, 8, 0)
+		DllCall("advapi32.dll\CryptCreateHash", "Ptr", CSPHandle, "UInt", CALG_MD5, "UInt", 0, "UInt", 0, "Ptr", &pHashHandle)
+		HashHandle := NumGet(&pHashHandle, 0, "UInt64")
+		;MsgBox, % "Hash: " HashHandle
+		
+		DllCall("advapi32.dll\CryptHashData", "Ptr", HashHandle, "Ptr", pData, "UInt", DataSize, "UInt", 0)
+		
+		VarSetCapacity(pHashSize, 8, 0)
+		DllCall("advapi32.dll\CryptGetHashParam", "Ptr", HashHandle, "UInt", HP_HASHVAL, "UInt", 0, "Ptr", &pHashSize, "UInt", 0)
+		HashSize := NumGet(pHashSize, 0, "UInt64")
+		;MsgBox, % "Hash Size: " HashSize
+		
+		VarSetCapacity(pHashData, HashSize, 0)
+		DllCall("advapi32.dll\CryptGetHashParam", "Ptr", HashHandle, "UInt", HP_HASHVAL, "Ptr", &pHashData, "Ptr", &pHashSize, "UInt", 0)
+		
+		FirstHalf := NumGet(&pHashData, 0, "UInt64")
+		SecondHalf := NumGet(&pHashData, 7, "UInt64")
+		Hash := this.IntToHex(FirstHalf, true) this.IntToHex(SecondHalf, true)
+		
+		DllCall("advapi32.dll\CryptDestroyHash", "Ptr", HashHandle)
+		DllCall("advapi32.dll\CryptReleaseContext", "Ptr", CSPHandle, "UInt", 0)
+		
+		return Hash
+	}
+	IntToHex(Int, NoPrefix := True) {
+		static HexCharacters := ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "A", "B", "C", "D", "E", "F"]
+		End := (NoPrefix ? "" : "0x")
+		HexString := ""
+		Quotient := Abs(Int)
+		
+		loop {
+			Remainder := Mod(Quotient, 16)
+			HexString := HexCharacters[Remainder + 1] HexString
+			Quotient := Floor(Quotient / 16)
+		} until (Quotient = 0)
+		
+		loop % 2 - StrLen(HexString) {
+			HexString := "0" HexString
+		}
+		
+		if (Mod(StrLen(HexString), 2)) {
+			HexString := "0" HexString
+		}
+		
+		return End HexString
 	}
 	CachePush(CachedRequest) {
 		if (this.UseFile) {
-			RequestStream := FileOpen(this.CacheFile ":" CachedRequest.URL, "w")
-			RequestStream.Length := 0
+			RequestStream := FileOpen(this.CacheFile ".bin:" this.Encode(CachedRequest.URL), "rw")
+			;MsgBox, % this.CacheFile ":" this.Encode(CachedRequest.URL)
+			;MsgBox, % IsObject(RequestStream) "`n" RequestStream.Length
+			RequestStream.Length := StrLen(CachedRequest.Response.Text) + 1
 			RequestStream.Write(CachedRequest.Response.Text)
 			RequestStream.Close()
 			CachedRequest.Response.Text := ""
@@ -1145,7 +1215,8 @@ class HTTP {
 		this.Cache[CachedRequest.Method].Push(CachedRequest)
 	
 		if (this.UseFile) {
-			CacheFile := FileOpen(this.CacheFile, "w")
+			CacheFile := FileOpen(this.CacheFile, "rw")
+			CacheFile.Seek(0)
 			CacheFile.Length := 0
 			CacheFile.Write(JSON.Dump(this.Cache))
 			CacheFile.Close()
@@ -1157,11 +1228,11 @@ class HTTP {
 			return
 		}
 	
-		if (CacheMode & HTTP_CACHE_FOREVER) {
-			MsgBox, % "Force Perma-cache on`nURL: " URL "`nMethod: " Method
+		if (CacheMode & HTTP.CACHE_FOREVER) {
+			;MsgBox, % "Force Perma-cache on`nURL: " URL "`nMethod: " Method
 			Never := A_Now
 			EnvAdd, Never, 1000, Days
-			this.CachePush(new CachedHTTPRequest(Method, URL, (CacheMode & HTTP_CACHE_IGNORE_HEADERS ? {} : Headers), Body, Response, Never))
+			this.CachePush(new CachedHTTPRequest(Method, URL, (CacheMode & HTTP.CACHE_IGNORE_HEADERS ? {} : Headers), Body, Response, Never))
 		}
 		else {
 			MaxAgeExpire := -1
@@ -1241,7 +1312,7 @@ class HTTP {
 			if (TotalExpire > A_Now) {
 				; if the expiration date isn't in the future, the request has already expired
 				; so we shouldn't bother to cache it at all
-				this.CachePush(new CachedHTTPRequest(Method, URL, (CacheMode & HTTP_CACHE_IGNORE_HEADERS ? {} : Headers), Body, Response, TotalExpire))
+				this.CachePush(new CachedHTTPRequest(Method, URL, (CacheMode & HTTP.CACHE_IGNORE_HEADERS ? {} : Headers), Body, Response, TotalExpire))
 				; Note: the CachedHTTPRequest class is just for data storage, it has little/no functionality
 			}
 		}
