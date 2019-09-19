@@ -110,7 +110,7 @@ class Spotify {
 			Args := {"Content-Type": "application/x-www-form-urlencoded", "Authorization": "Basic OWZlMjYyOTZiYjdiNDMzMGFjNTkzMzllZmQyNzQyYjA6ZWNhNjU2ZDFkNTczNDNhOTllMWJjNWVmODQ0YmY2NGM="}
 			Response := JSON.Load(R := this.CustomCall("POST", "https://accounts.spotify.com/api/token?grant_type=authorization_code&code=" . this.AuthCode . "&redirect_uri=http:%2F%2Flocalhost:8000%2Fcallback", Args, true))
 			
-			MsgBox, % R
+			;MsgBox, % R
 			
 			if (Response["refresh_token"]) {
 				this.SaveRefreshToken(Response)
@@ -134,7 +134,7 @@ class Spotify {
 				
 				; I lied, this is the *other* only error we can't recover from, if there's an error getting our first access token, then something's fucky and we shouldn't keep trying
 				RegWrite, REG_SZ, % this.RefreshTokenRegKey, RefreshToken, % ""
-				MsgBox, % "Hi"
+				;MsgBox, % "Hi"
 				Throw {"Message": "Spotify.ahk could not get an authorization token after web authorization", "What": "Authorization fail", "File": A_LineFile, "Line": A_LineNumber}
 				return
 			}
@@ -476,7 +476,7 @@ class Spotify {
 		}
 		Get(Key) {
 			if (Key = "Tracks") {
-				MsgBox, % "Getter Called"
+				;MsgBox, % "Getter Called"
 				
 				this.Tracks := this.GetAllTracks()
 				return this.Tracks
