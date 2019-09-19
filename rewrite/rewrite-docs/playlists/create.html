@@ -262,8 +262,8 @@
 <p>B) Get a track object with <a href="../tracks/get-track.html"><code>Spotify.Tracks.GetTrack()</code></a> and the track's <a href="https://developer.spotify.com/documentation/web-api/#spotify-uris-and-ids">Spotify ID</a></p>
 <p>C) Add a track to the new playlist with <code>.AddTrack()</code>, and the newly created track object</p>
 <p>D) Will try to play the new playlist on the active device</p>
-<pre><code>Spoofy := new Spotify()
-NewPlaylist := Spoofy.Playlists.CreatePlaylist(&quot;Test 123&quot;, &quot;This is an example playlist made by Spotify.ahk&quot;)
+<pre><code>Spotify.Auth()
+NewPlaylist := Spotify.Playlists.CreatePlaylist(&quot;Test 123&quot;, &quot;This is an example playlist made by Spotify.ahk&quot;)
 
 TheTrack := Spotify.Tracks.GetTrack(&quot;5ogtb9bGQoH8CjZNxmbNHR&quot;)
 NewPlaylist.AddTrack(TheTrack)

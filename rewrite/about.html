@@ -61,6 +61,12 @@
             
     <li class="toctree-l2"><a href="#about-spotifyahk">About Spotify.ahk</a></li>
     
+        <ul>
+        
+            <li><a class="toctree-l3" href="#the-implementation">The implementation</a></li>
+        
+        </ul>
+    
 
     </ul>
 	    </li>
@@ -241,6 +247,29 @@
               
                 <h1 id="about-spotifyahk">About Spotify.ahk</h1>
 <p>Spotify.ahk is a (hopefully) fully featured wrapper for the Spotify API which aims to allow complete automation of Spotify</p>
+<h2 id="the-implementation">The implementation</h2>
+<p>The core of Spotify.ahk is the <code>Spotify.Util</code> class, which contains all code for getting user auth done, and sending actual web requests. </p>
+<h3 id="spotifyutilcustomcall"><code>Spotify.Util.CustomCall</code></h3>
+<p>The core of the <code>Spotify.Util</code> class is the <code>Spotify.Util.CustomCall</code> method, which takes a HTTP Method, URL, array of request headers, a flag for disabling a check for if the authorization token is up to data, data to send in the body of the request, a flag to ignore non 2xx HTTP status codes, and finally, a flag passed to the HTTP cache class to decide how the request should be cached.</p>
+<p>Because of this large number of parameters, if <code>-1</code> is passed as the third parameter, the fourth parameter is treated as an object, where each key is a parameter name, mapped to the value for that parameter.
+This allows for fake named parameters, and cleans up API calls by a lot.</p>
+<p>After the named parameters are dealt with, <code>.CustomCall</code> will check if the <code>NoTimeOut</code> parameter is set, and if it isn't, then an automatic check will be made that will request a new web API authorization token before making the current request. If the flag is set, this check is bypassed.
+This allows for requests that don't require authorization to be done with no extra overhead.</p>
+<p>Next, <code>.CustomCall</code> checks if the URL passed starts with a Spotify API URL base, and if it doesn't, it prepends the API base URL to the passed URL.
+This allows for endpoints to be passed as URLs, and automatically converted to full URLs.</p>
+<p>After this, <code>.CustomCall</code> will check if the <code>HeaderMap</code> parameter was passed, and if it wasn't, a default header map will be created containing the default Spotify authorization header.
+This allows for calls to <code>.CustomCall</code> to not know the Spotify API token, and keeps the token inside the <code>Spotify.Util</code> class only.</p>
+<p>Finally, <a href="http-cache.md"><code>HTTP.Request</code></a> is called, and the response to the current request is returned.</p>
+<h3 id="static-classes">Static Classes</h3>
+<p>Classes like <code>Spotify.Player</code> and <code>Spotify.Library</code> are all static, and take parameters as raw Spotify IDs, and return AHK objects that represent the API response to whatever method was called.
+Objects of classes like <code>Spotify.Track</code> are not static, and contain info about themselves that can be found on their docs page. Methods of these classes expect objects of the similiar classes.
+For example, </p>
+<pre><code>NewPlaylist := Spotify.Playlists.CreatePlaylist(&quot;Test 123&quot;, &quot;This is an example playlist made by Spotify.ahk&quot;)
+GoodSongIMO := Spotify.Tracks.GetTrack(&quot;4A6eJ3gOmVdD7C69N3DC7K&quot;)
+NewPlaylist.AddTrack(GoodSongIMO)
+</code></pre>
+
+<p>Since both <code>NewPlaylist</code> and <code>GoodSongIMO</code> are objects of a <code>Spotify.*</code> class, they take parameters that are also objects of a <code>Spotify.*</code> class.</p>
               
             </div>
           </div>
