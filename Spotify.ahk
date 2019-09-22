@@ -13,10 +13,13 @@ class Spotify {
 	}
 }
 class Util {
+	static MAX_RETRY := 3
+
 	__New(ByRef ParentObject) {
 		this.ParentObject := ParentObject
 		this.RefreshLoc := "HKCU\Software\SpotifyAHK"
 		this.StartUp()
+		this.AuthRetries := 0 ; Count of how many times we have retried auth
 	}
 	StartUp() {
 		RegRead, refresh, % this.RefreshLoc, refreshToken
@@ -62,13 +65,48 @@ class Util {
 		refresh := this.DecryptToken(refresh)
 		arg := {1:{1:"Content-Type", 2:"application/x-www-form-urlencoded"}, 2:{1:"Authorization", 2:"Basic OWZlMjYyOTZiYjdiNDMzMGFjNTkzMzllZmQyNzQyYjA6ZWNhNjU2ZDFkNTczNDNhOTllMWJjNWVmODQ0YmY2NGM="}}
 		response := this.CustomCall("POST", "https://accounts.spotify.com/api/token?grant_type=refresh_token&refresh_token=" . refresh, arg, true)
-		this.authState := true
+		
 		if (InStr(response, "refresh_token")) {
 			this.SaveRefreshToken(response)
 		}
-		RegexMatch(response, "access_token"":""\K.*?(?="")", token)
-		this.token := token
-		this.SetTimeout()
+
+		Response := JSON.Load(Response) ; Oh god, this old code is really bad. If anyone bothers reading this, please just
+		; use the rewrite
+		
+		ForceError := false
+		
+		if (ForceError) {
+			Response["error_description"] := "Invalid refresh token"
+		}
+			
+		if (Response["access_token"] && !ForceError) {
+			; If we got an access token, we can set the flag that we're authorized
+			this.authState := true
+			this.Token := Response["access_token"] ; And store the new access token
+			this.SetTimeout() ; And set when the new access token will expire
+		}
+		else {
+			; Else if they didn't give us a new access token, something went wrong
+			this.authState := false ; Set that auth is *not* complete
+			this.AuthRetries++
+				
+			if (this.AuthRetries >= this.MAX_RETRY) {
+				MsgBox, % "Spotify.ahk authorization attempt cap met, aborting"
+				Spotify.Util := ""
+				this := ""
+				Spotify := ""
+				return
+			}
+			
+			if (Response["error_description"] = "Invalid refresh token") {
+				RegWrite, REG_SZ, % this.RefreshLoc, refreshToken, % "" ; Wipe the stored (bad) refresh token
+				MsgBox, % "Spotify.ahk could not get a valid refresh token from the Spotify API, retrying authorization."
+				return this.StartUp() ; Retry auth and hope we get a valid refresh token this time
+			}
+			
+			Throw {"Message": Response["error_description"], "What": Response["error"], "File": A_LineFile, "Line": A_LineNumber}
+			;this.StartUp() ; Call startup after wiping the stored refresh token, so we can try to get a new valid one
+		}
 	}
 	FetchTokens() {
 		if (this.fail) {

@@ -1,4 +1,5 @@
-﻿#Include Spotify.ahk
+﻿#Include %A_ScriptDir%
+#Include Spotify.ahk
 global VolumePercentage
 global ShuffleMode
 global RepeatMode := 0
