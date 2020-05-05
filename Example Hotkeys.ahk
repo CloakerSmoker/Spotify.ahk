@@ -8,7 +8,8 @@ VolumePercentage := spoofy.Player.GetCurrentPlaybackInfo().Device.Volume
 return
 
 F1::
-VolumePercentage--
+if(VolumePercentage - 1 > 0)
+  VolumePercentage--
 spoofy.Player.SetVolume(VolumePercentage) ; Decrement the volume percentage and set the player to the new volume percentage
 return
 
