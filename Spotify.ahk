@@ -177,7 +177,21 @@ class Util {
 		SpotifyWinHttp.Send(body)
 		
 		if (SpotifyWinHttp.Status > 299 && !noErr) {
-			throw {message: SpotifyWinHttp.Status . " not 2xx for request """ . method . ":" . url . """.", what: "HTTP response code not 2xx", file: A_LineFile, line: A_LineNumber}
+			ErrorObject := JSON.Load(SpotifyWinHttp.ResponseText).Error
+			ErrorMessage := ""
+			
+			if (ErrorObject) {
+				if (ErrorObject.Reason) {
+					ErrorMessage .= ErrorObject.Reason ": "
+				}
+				
+				ErrorMessage .= ErrorObject.Message
+			}
+			else {
+				ErrorMessage := SpotifyWinHttp.Status . " not 2xx for request """ . method . ":" . url . """."
+			}
+			
+			throw {message: ErrorMessage, what: "HTTP response code not 2xx", file: A_LineFile, line: A_LineNumber}
 		}
 		
 		return SpotifyWinHttp.ResponseText
