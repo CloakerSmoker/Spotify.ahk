@@ -14,7 +14,7 @@ class Spotify {
 }
 class Util {
 	static MAX_RETRY := 3
-
+	
 	__New(ByRef ParentObject) {
 		this.ParentObject := ParentObject
 		this.RefreshLoc := "HKCU\Software\SpotifyAHK"
@@ -29,7 +29,7 @@ class Util {
 			Spotify := ""
 			return
 		}
-	
+		
 		RegRead, refresh, % this.RefreshLoc, refreshToken
 		if (refresh) {
 			this.RefreshTempToken(refresh)
@@ -49,13 +49,20 @@ class Util {
 		}
 	}
 	
+	
+	; InternetConnectionCheck
+	internetConnected(url:="http://api.spotify.com/v1/"){
+		return, !(!dllCall("Wininet.dll\InternetCheckConnection","Str",url,"Uint",1,"Uint",0))
+	}
+	
 	; Timeout methods
 	
-	SetTimeout() {
+	SetTimeout(ExpiresInSeconds) {
 		TimeOut := A_Now
-		EnvAdd, TimeOut, 1, hours
+		EnvAdd, TimeOut, %ExpiresInSeconds%, seconds
 		this.TimeOut := TimeOut
 	}
+	
 	CheckTimeout() {
 		if (this.TimeLastChecked = A_Min) {
 			return
@@ -88,7 +95,7 @@ class Util {
 		if (InStr(response, "refresh_token")) {
 			this.SaveRefreshToken(response)
 		}
-
+		
 		try {
 			Response := JSON.Load(Response) ; Oh god, this old code is really bad. If anyone bothers reading this, please just
 			; use the rewrite
@@ -104,12 +111,12 @@ class Util {
 		if (ForceError) {
 			Response["error_description"] := "Invalid refresh token"
 		}
-			
+		
 		if (Response["access_token"] && !ForceError) {
 			; If we got an access token, we can set the flag that we're authorized
 			this.authState := true
 			this.Token := Response["access_token"] ; And store the new access token
-			this.SetTimeout() ; And set when the new access token will expire
+			this.SetTimeout(Response.expires_in) ; And set when the new access token will expire
 		}
 		else {
 			; Else if they didn't give us a new access token, something went wrong
@@ -248,51 +255,52 @@ class Player {
 	}
 	SaveCurrentlyPlaying() {
 		/*
-		* Gets the currently playing track, then tells it to save itself (10/10 OOP, I know)
-		* Requires something to be playing
-		* returns the text response from the API, which is empty unless there is an error
+			* Gets the currently playing track, then tells it to save itself (10/10 OOP, I know)
+			* Requires something to be playing
+			* returns the text response from the API, which is empty unless there is an error
 		*/
 		return this.GetCurrentPlaybackInfo().Track.Save()
 	}
 	UnSaveCurrentlyPlaying() {
 		/*
-		* Gets the currently playing track, then tells it to unsave itself
-		* Requires something to be playing
-		* returns the text response from the API, which is empty unless there is an error
+			* Gets the currently playing track, then tells it to unsave itself
+			* Requires something to be playing
+			* returns the text response from the API, which is empty unless there is an error
 		*/
 		return this.GetCurrentPlaybackInfo().track.UnSave()
 	}
 	SetVolume(volume) {
 		/*
-		* Sets the volume of playback on the active device to the percent (0-100) passed 
+			* Sets the volume of playback on the active device to the percent (0-100) passed 
 		*/
 		return this.ParentObject.Util.CustomCall("PUT", "me/player/volume?volume_percent=" . volume)
 	}
 	GetCurrentPlaybackInfo() {
 		/*
-		* Calls me/player, which returns a whole bunch of different objects
-		* Translates JSON versions of track/device/context objects into custom objects
-		* Alters the original response object, so any extra info that can't be turned into an object is still returned
+			* Calls me/player, which returns a whole bunch of different objects
+			* Translates JSON versions of track/device/context objects into custom objects
+			* Alters the original response object, so any extra info that can't be turned into an object is still returned
 		*/
 		Resp := JSON.load(this.ParentObject.Util.CustomCall("GET", "me/player"))
 		Resp.Track := new track(Resp["item"], this.ParentObject)
 		Resp.Device := new device(Resp["device"], this.ParentObject)
 		Resp.Context := new context(Resp["context"], this.ParentObject)
+		; Resp.currentlyPlaying := new currently_playing_type(Resp["currently_playing_type"], this.ParentObject)
 		return Resp
 	}
 	ChangeContext(ContextURI) {
 		/*
-		* OLD - I should probably remove this
-		* Change playback to a different context (AKA playlist/album/just read whatever Spotify says is a context)
-		* Only to be directly called until I finish with the playlist object
+			* OLD - I should probably remove this
+			* Change playback to a different context (AKA playlist/album/just read whatever Spotify says is a context)
+			* Only to be directly called until I finish with the playlist object
 		*/
 		return this.ParentObject.Util.CustomCall("PUT", "me/player/play",, false, JSON.Dump({"context_uri": ContextURI}))
 	}
 	
 	GetDeviceList() {
 		/*
-		* Gets an array of device objects from the API
-		* Translates them into our device class, and returns an array of custom device objects
+			* Gets an array of device objects from the API
+			* Translates them into our device class, and returns an array of custom device objects
 		*/
 		Resp := JSON.Load(this.ParentObject.Util.CustomCall("GET", "me/player/devices"))
 		RetVar := []
@@ -303,19 +311,19 @@ class Player {
 	}
 	GetRecentlyPlayed() {
 		/*
-		* Gets an array of tracks alongside other info from the API
-		* You might also want to read this Spotify API docs page
-		* https://developer.spotify.com/documentation/web-api/reference/player/get-recently-played/
-		* WARNING, EVERYTHING IS WRAPPED IN A PAGING OBJECT, the return object is structured as follows
-		* Paging Object
-		* |-> ["items"] (An array of the below objects)
-		* |   |-> [1] Play History Object
-		* |   |       |-> ["track"] (A simplified track object)
-		* |   |       |-> ["context"] (A context object the track was played in)
-		* |   |       |-> ["played_at"] (A UTC timestamp formatted YYYY-MM-DDTHH:MM:SSZ) - Note, I've got no clue what T or Z mean
-		* |   |-> [2] Another Play History Object (They are numerically indexed, you can loop through with a for loop)
-		* I really like how easy it is to follow what this returns with that nice graphic, I think I'll do it more
-		* Builds the play history objects out of functional custom objects
+			* Gets an array of tracks alongside other info from the API
+			* You might also want to read this Spotify API docs page
+			* https://developer.spotify.com/documentation/web-api/reference/player/get-recently-played/
+			* WARNING, EVERYTHING IS WRAPPED IN A PAGING OBJECT, the return object is structured as follows
+			* Paging Object
+			* |-> ["items"] (An array of the below objects)
+			* |   |-> [1] Play History Object
+			* |   |       |-> ["track"] (A simplified track object)
+			* |   |       |-> ["context"] (A context object the track was played in)
+			* |   |       |-> ["played_at"] (A UTC timestamp formatted YYYY-MM-DDTHH:MM:SSZ) - Note, I've got no clue what T or Z mean
+			* |   |-> [2] Another Play History Object (They are numerically indexed, you can loop through with a for loop)
+			* I really like how easy it is to follow what this returns with that nice graphic, I think I'll do it more
+			* Builds the play history objects out of functional custom objects
 		*/
 		Resp := JSON.Load(this.ParentObject.Util.CustomCall("GET", "me/player/recently-played?limit=50"))
 		for k, v in Resp["items"] {
@@ -325,52 +333,52 @@ class Player {
 	}
 	SeekTime(TimeInMS) {
 		/*
-		* Tells the API to jump to the specified time in MS on the currently playing track
+			* Tells the API to jump to the specified time in MS on the currently playing track
 		*/
 		return this.ParentObject.Util.CustomCall("PUT", "me/player/seek?position_ms=" . TimeInMS)
 	}
 	SetRepeatMode(mode) {
 		/*
-		* Tells the API to change the repeat mode
-		* Passing 1 for mode will have the currently playing track repeat
-		* Passing 2 for mode will have the currently playing context repeat
-		* Passing 3 or any other value that isn't 1/2 will turn off repeat
+			* Tells the API to change the repeat mode
+			* Passing 1 for mode will have the currently playing track repeat
+			* Passing 2 for mode will have the currently playing context repeat
+			* Passing 3 or any other value that isn't 1/2 will turn off repeat
 		*/
 		return this.ParentObject.Util.CustomCall("PUT", "me/player/repeat?state=" . (mode = 1 ? "track" : (mode = 2 ? "context" : "off")))
 	}
 	SetShuffle(mode) {
 		/*
-		* Tells the API to change the shuffle mode to true/false, depending on what it it passed
+			* Tells the API to change the shuffle mode to true/false, depending on what it it passed
 		*/
 		return this.ParentObject.Util.CustomCall("PUT", "me/player/shuffle?state=" . (mode ? "true" : "false"))
 	}
 	NextTrack() {
 		/*
-		* Figure this one out on your own
+			* Figure this one out on your own
 		*/
 		return this.ParentObject.Util.CustomCall("POST", "me/player/next")
 	}
 	LastTrack() {
 		/*
-		* Figure this one out on your own
+			* Figure this one out on your own
 		*/
 		return this.ParentObject.Util.CustomCall("POST", "me/player/previous")
 	}
 	PausePlayback() {
 		/*
-		* Figure this one out on your own
+			* Figure this one out on your own
 		*/
 		return this.ParentObject.Util.CustomCall("PUT", "me/player/pause")
 	}
 	ResumePlayback() {
 		/*
-		* Figure this one out on your own
+			* Figure this one out on your own
 		*/
 		return this.ParentObject.Util.CustomCall("PUT", "me/player/play")
 	}
 	PlayPause() {
 		/*
-		* Figure this one out on your own
+			* Figure this one out on your own
 		*/
 		return ((this.GetCurrentPlaybackInfo()["is_playing"] = 0) ? (this.ResumePlayback()) : (this.PausePlayback()))
 	}
