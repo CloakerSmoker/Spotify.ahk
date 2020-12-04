@@ -1,5 +1,7 @@
 #MaxThreads 2
 class Spotify {
+	static SHOULD_CHECK_CONNECTION_BEFORE_REQUEST := false
+	
 	__New() {
 		this.Util := new Util(this)
 		this.Player := new Player(this)
@@ -51,11 +53,11 @@ class Util {
 	
 	; Timeout methods
 	
-	SetTimeout() {
-		TimeOut := A_Now
-		EnvAdd, TimeOut, 1, hours
-		this.TimeOut := TimeOut
-	}
+    SetTimeout(ExpiresInSeconds) {
+        TimeOut := A_Now
+        EnvAdd, TimeOut, %ExpiresInSeconds%, seconds
+        this.TimeOut := TimeOut
+    }
 	CheckTimeout() {
 		if (this.TimeLastChecked = A_Min) {
 			return
@@ -68,6 +70,10 @@ class Util {
 	}
 	
 	; API token operations
+	
+	IsInternetConnected(CheckURL := "http://api.spotify.com/v1/"){
+		return DllCall("Wininet.dll\InternetCheckConnection", "Str", CheckURL, "UInt", 1, "UInt", 0)
+	}
 	
 	RefreshTempToken(refresh) {
 		refresh := this.DecryptToken(refresh)
@@ -109,7 +115,7 @@ class Util {
 			; If we got an access token, we can set the flag that we're authorized
 			this.authState := true
 			this.Token := Response["access_token"] ; And store the new access token
-			this.SetTimeout() ; And set when the new access token will expire
+			this.SetTimeout(Response.expires_in) ; And set when the new access token will expire
 		}
 		else {
 			; Else if they didn't give us a new access token, something went wrong
@@ -157,6 +163,10 @@ class Util {
 	; API call method with auto-auth/timeout check/base URL
 	
 	CustomCall(method, url, HeaderArray := "", noTimeOut := false, body := "", noErr := false) {
+		if (Spotify.SHOULD_CHECK_CONNECTION_BEFORE_REQUEST && !this.IsInternetConnected()) {
+			Throw Exception("No internet connection")
+		}
+		
 		if !(noTimeOut) {
 			this.CheckTimeout()
 		}
