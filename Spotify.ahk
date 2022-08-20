@@ -456,6 +456,19 @@ class Playlists {
 	GetPlaylist(PlaylistID) {
 		return new playlist(JSON.Load(this.ParentObject.Util.CustomCall("GET", "playlists/" . PlaylistID)), this.ParentObject)
 	}
+	GetPlaylistTracks(PlaylistID) {
+		; get first page (up to 100 tracks)
+		PlaylistObject := new playlist(JSON.Load(this.ParentObject.Util.CustomCall("GET", "playlists/" . PlaylistID)), this.ParentObject)
+		offset := 100
+		loop {
+			; get next 100 tracks (if any)
+			TrackObject := JSON.Load(this.ParentObject.Util.CustomCall("GET", "playlists/" . PlaylistID . "/tracks?offset=" . offset))
+			; add tracks to playlist object
+			PlaylistObject.AddTracksPage(TrackObject.items)
+			offset += 100
+		} until !TrackObject.items.MaxIndex()
+		return PlaylistObject
+	}
 	CreatePlaylist(name, description, public := true) {
 		headers := {1:{1:"Authorization", 2:"Bearer " . this.ParentObject.Util.token}, 2:{1:"Content-Type", 2:"application/json"}}
 		body := "{""name"":""" . name . """, ""description"":""" . description """, ""public"":" . public . "}"
@@ -488,7 +501,11 @@ class playlist {
 		}
 		this.uri := this.json["uri"]
 	}
-	
+	AddTracksPage(Items) {
+		for k, v in Items {
+			this.tracks.Push(new track(v["track"], this.SpotifyObj))
+		}
+	}
 	AddTrack(TrackIDOrTrackOBJ) {
 		if (IsObject(TrackIDOrTrackOBJ)) {
 			tid := TrackIDOrTrackOBJ.id
