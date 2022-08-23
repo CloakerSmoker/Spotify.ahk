@@ -501,11 +501,6 @@ class playlist {
 		}
 		this.uri := this.json["uri"]
 	}
-	AddTracksPage(Items) {
-		for k, v in Items {
-			this.tracks.Push(new track(v["track"], this.SpotifyObj))
-		}
-	}
 	AddTrack(TrackIDOrTrackOBJ) {
 		if (IsObject(TrackIDOrTrackOBJ)) {
 			tid := TrackIDOrTrackOBJ.id
@@ -530,6 +525,20 @@ class playlist {
 	Delete() {
 		this.SpotifyObj.Util.CustomCall("DELETE", "https://api.spotify.com/v1/playlists/" . this.id "/followers")
 		return
+	}
+	GetAllTracks() {
+		; get first page (up to 100 tracks)
+		offset := 100
+		loop {
+			; get next 100 tracks (if any)
+			TracksObject := JSON.Load(this.SpotifyObj.Util.CustomCall("GET", "playlists/" . this.id . "/tracks?limit=100&offset=" . offset))
+			; add tracks to playlist object
+			for k, v in TracksObject.items {
+				this.tracks.Push(new track(v["track"], this.SpotifyObj))
+			}
+			offset += 100
+		} until !TracksObject.items.MaxIndex()
+		return this.tracks
 	}
 	; Fuck me, all these classes feel so half-baked, what the hell am I even doing?
 }

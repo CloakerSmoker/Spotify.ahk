@@ -1,10 +1,10 @@
-﻿/*
-Spotify class original
+/*
+Export example for Spotify class
 Source: https://github.com/CloakerSmoker/Spotify.ahk
 Documentation (updated): https://cloakersmoker.github.io/Spotify.ahk/rewrite/index.html
 Edited: Jean Lalonde (https://www.QuickAccessPopup.com) 2022-08-19
 
-ObjCSV class
+ObjCSV class (to save data to CSV file)
 Source: https://github.com/JnLlnd/ObjCSV
 Documentation: http://code.jeanlalonde.ca/ahk/ObjCSV/ObjCSV-doc/
 
@@ -21,34 +21,37 @@ This example by: Jean Lalonde (https://github.com/JnLlnd) 2022-08-19
 global o_Spotify := new Spotify
 global o_PlaylistOutput := Object()
 
-Playlist2CSV("37i9dQZF1EVHGWrwldPRtj", "Daily Mix 1")
-Playlist2CSV("6uplrDScAMCePauuh1hVOF", "MTL Jazz")
+GetPlaylist("37i9dQZF1EVHGWrwldPRtj", "Daily Mix 1")
+GetPlaylist("6uplrDScAMCePauuh1hVOF", "MTL Jazz")
 
-ObjCSV_Collection2CSV(o_PlaylistOutput, A_ScriptDir . "\Playlists.csv", true, "Playlist;Artiste;Album;Titre;Secondes;ISRC;URL", , true, ";", , , , "UTF-8")
+ToolTip, Saving to CSV file
+ObjCSV_Collection2CSV(o_PlaylistOutput, A_ScriptDir . "\Playlists.csv", true, "Playlist;Artists;Album;Title;Seconds;ISRC;URL", , true, ";", , , , "UTF-8")
+ToolTip
 
 Run, % A_ScriptDir . "\Playlists.csv"
 
 return
 
 
-Playlist2CSV(strPlaylistID, strPlaylistName)
+GetPlaylist(strPlaylistID, strPlaylistName)
 {
 	ToolTip, %strPlaylistName%
-	o_Playlist := o_Spotify.Playlists.GetPlaylistTracks(strPlaylistID)
+	o_PlaylistTracks := o_Spotify.Playlists.GetPlaylist(strPlaylistID).GetAllTracks()
 	
-	for intOrder, oTrack in o_Playlist.tracks
+	for intOrder, oTrack in o_PlaylistTracks
 	{
 		oNewTrack := Object()
 		oNewTrack.Playlist := strPlaylistName
-		oNewTrack.Titre := oTrack.name
+		oNewTrack.Title := oTrack.name
 		for intArtistOrder, oArtist in oTrack.artists
-			oNewTrack.Artiste .= oArtist.name . ", "
-		oNewTrack.Artiste := SubStr(oNewTrack.Artiste, 1, -2)
+			oNewTrack.Artists .= oArtist.name . ", "
+		oNewTrack.Artists := SubStr(oNewTrack.Artiste, 1, -2)
 		oNewTrack.Album := oTrack.album.name
 		oNewTrack.ISRC := oTrack.json.external_ids.isrc
-		oNewTrack.Secondes := Round(oTrack.json.duration_ms / 1000)
+		oNewTrack.Seconds := Round(oTrack.json.duration_ms / 1000)
 		oNewTrack.URL := oTrack.json.external_urls.spotify
 		o_PlaylistOutput.Push(oNewTrack)
 	}
 	ToolTip
 }
+
