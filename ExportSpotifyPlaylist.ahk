@@ -1,10 +1,10 @@
 ﻿/*
-Spotify class original
+Export example for Spotify class
 Source: https://github.com/CloakerSmoker/Spotify.ahk
 Documentation (updated): https://cloakersmoker.github.io/Spotify.ahk/rewrite/index.html
 Edited: Jean Lalonde (https://www.QuickAccessPopup.com) 2022-08-19
 
-ObjCSV class
+ObjCSV class (to save data to CSV file)
 Source: https://github.com/JnLlnd/ObjCSV
 Documentation: http://code.jeanlalonde.ca/ahk/ObjCSV/ObjCSV-doc/
 
